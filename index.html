@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Analyse Fondamentale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F4EF;--surface:#fff;--border:#E2DDD6;
+  --text:#1A1714;--muted:#7A7268;--faint:#B0A898;
+  --blue:#2C4A7C;--green:#2D7A50;--red:#C0392B;
+  --r:14px;--rS:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* HEADER */
+header{position:sticky;top:0;background:#ffffffee;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:54px;padding:0 28px;display:flex;align-items:center;gap:16px;z-index:200}
+.brand{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--blue);letter-spacing:.3px;white-space:nowrap}
+.mkt-pills{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1}
+.mkt-pills::-webkit-scrollbar{display:none}
+.mkt-pill{padding:4px 12px;border-radius:20px;border:1px solid var(--border);font-size:11px;font-weight:500;color:var(--muted);background:transparent;cursor:pointer;white-space:nowrap;transition:all .15s}
+.mkt-pill:hover,.mkt-pill.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.search-wrap{position:relative;margin-left:auto;flex-shrink:0}
+#searchBtn{display:flex;align-items:center;gap:6px;padding:6px 14px;background:#EBF0FA;border:1px solid #2C4A7C44;border-radius:20px;color:var(--blue);font-size:12px;cursor:pointer;font-family:inherit;font-weight:500}
+#searchBox{display:none;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--blue);border-radius:10px;padding:6px 14px;min-width:260px}
+#searchBox input{flex:1;background:transparent;border:none;outline:none;font-size:13px;color:var(--text);font-family:inherit}
+#searchBox button{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px}
+#results{position:absolute;top:calc(100% + 6px);right:0;width:300px;background:#fff;border:1px solid var(--border);border-radius:12px;display:none;overflow:hidden;box-shadow:0 8px 32px #00000014;z-index:300}
+.res-item{padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.res-item:last-child{border-bottom:none}
+.res-item:hover{background:#EBF0FA}
+.res-name{font-weight:600}.res-ticker{font-size:11px;color:var(--muted);margin-left:6px}
+.res-ex{font-size:10px;background:#EBF0FA;color:var(--blue);padding:2px 7px;border-radius:5px;font-weight:500}
+
+/* HOME */
+#home main{max-width:1100px;margin:0 auto;padding:40px 28px}
+.hero{margin-bottom:44px}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:46px;font-weight:400;line-height:1.1;color:var(--text)}
+.hero p{font-size:13px;color:var(--muted);margin-top:8px}
+
+/* MARKET SECTION */
+.mkt-section{margin-bottom:48px;scroll-margin-top:70px}
+.mkt-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}
+.mkt-label{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500}
+.mkt-sub{font-size:11px;color:var(--faint)}
+.mkt-head::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* LOGO GRID */
+.logo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px}
+.logo-card{aspect-ratio:1;border-radius:16px;cursor:pointer;overflow:hidden;position:relative;border:1px solid var(--border);background:#fff;transition:transform .2s,box-shadow .2s}
+.logo-card:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 10px 32px rgba(0,0,0,.1);z-index:2}
+.logo-card img{width:56%;height:56%;object-fit:contain;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.logo-fallback{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:var(--muted);text-align:center;pointer-events:none;width:80%;line-height:1.3}
+.logo-tip{position:absolute;bottom:0;left:0;right:0;background:rgba(26,23,20,.82);backdrop-filter:blur(4px);color:#fff;padding:7px 8px;transform:translateY(100%);transition:transform .2s;text-align:center}
+.logo-tip-name{font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.logo-tip-cap{font-size:9px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.65);margin-top:2px}
+.logo-card:hover .logo-tip{transform:translateY(0)}
+
+/* SPINNER */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-state{text-align:center;padding:60px 0;color:var(--faint)}
+
+/* ─── DETAIL PAGE ─── */
+#detail{display:none;min-height:100vh;position:relative}
+#detail .inner{max-width:940px;margin:0 auto;padding:28px 24px 60px}
+
+/* Hero gradient */
+.co-hero{padding:40px 0 32px;margin-bottom:0;position:relative}
+.co-hero::after{content:'';position:absolute;bottom:0;left:-9999px;right:-9999px;height:1px;background:rgba(255,255,255,.08)}
+.back-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);font-size:12px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);margin-bottom:28px;transition:all .15s}
+.back-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.co-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.co-logo{width:60px;height:60px;border-radius:14px;object-fit:contain;background:rgba(255,255,255,.95);padding:8px;border:1px solid rgba(255,255,255,.2)}
+.co-logo-fallback{width:60px;height:60px;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:rgba(255,255,255,.7)}
+.co-name-block{display:flex;align-items:center;gap:14px}
+.co-name{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;color:#fff;line-height:1.1}
+.co-meta{font-size:12px;color:rgba(255,255,255,.5);font-family:'DM Mono',monospace;margin-top:5px}
+.co-price-block{text-align:right}
+.co-price{font-size:32px;font-weight:600;font-family:'DM Mono',monospace;color:#fff}
+.co-chg{font-size:14px;font-weight:500;margin-top:4px}
+.pos{color:#4ade80}.neg{color:#f87171}
+
+/* KPIs */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:24px 0}
+.kpi{border-radius:12px;padding:14px 16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05)}
+.kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);margin-bottom:6px}
+.kpi-val{font-size:20px;font-weight:600;font-family:'DM Mono',monospace;color:#fff}
+.kpi-val.accent{color:var(--co-accent,#88aaff)}
+
+/* SECTION TITLES */
+.sec-title{display:flex;align-items:center;gap:14px;margin:32px 0 14px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.4)}
+.sec-title::before,.sec-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1)}
+
+/* CARDS */
+.card-d{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:14px}
+
+/* TABS */
+.tabs{display:flex;gap:3px;background:rgba(255,255,255,.06);border-radius:9px;padding:3px}
+.tab-btn{padding:5px 12px;border-radius:7px;border:none;background:transparent;font-family:inherit;font-size:11px;cursor:pointer;color:rgba(255,255,255,.5);transition:all .15s}
+.tab-btn.on{background:var(--co-accent,#4466cc);color:#fff;font-weight:600}
+
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.tbl th{text-align:right;padding:7px 10px;color:rgba(255,255,255,.35);font-weight:500;font-size:10px;border-bottom:1px solid rgba(255,255,255,.08);white-space:nowrap}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:7px 10px;font-family:'DM Mono',monospace;text-align:right;color:rgba(255,255,255,.8)}
+.tbl td:first-child{text-align:left;color:rgba(255,255,255,.45);font-family:'DM Sans',sans-serif}
+.tbl tr:nth-child(even){background:rgba(255,255,255,.025)}
+.tbl tr:hover{background:rgba(255,255,255,.05)}
+.tbl .bold td{color:#fff;font-weight:600}
+
+/* GEO BARS */
+.geo-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.geo-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.geo-name{font-size:11px;color:rgba(255,255,255,.5);width:130px;flex-shrink:0}
+.geo-track{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.geo-fill{height:4px;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.geo-pct{font-size:12px;font-weight:600;font-family:'DM Mono',monospace;width:34px;text-align:right}
+
+/* CHARTS */
+.chart-wrap{position:relative;height:220px}
+.chart-wrap-sm{position:relative;height:180px}
+
+/* COMPETITOR TABLE */
+.comp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;font-size:11px}
+.comp-col{border-right:1px solid rgba(255,255,255,.08)}
+.comp-col:last-child{border-right:none}
+.comp-cell{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.06)}
+.comp-cell:last-child{border-bottom:none}
+.comp-header{font-weight:600;font-size:11px;color:#fff;display:flex;align-items:center;gap:8px;min-height:52px;align-items:center}
+.comp-header img{width:28px;height:28px;border-radius:6px;object-fit:contain;background:rgba(255,255,255,.9);padding:3px}
+.comp-label{color:rgba(255,255,255,.35);font-size:10px;margin-bottom:3px}
+.comp-val{font-family:'DM Mono',monospace;color:rgba(255,255,255,.85)}
+.comp-val.hi{color:#4ade80}.comp-val.lo{color:#f87171}
+
+/* AI */
+.ai-btns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.ai-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);background:transparent;border-radius:8px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.ai-btn:hover,.ai-btn.on{background:var(--co-accent,#4466cc);color:#fff;border-color:transparent}
+.ai-out{margin-top:12px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px;display:none}
+.ai-line{padding:9px 13px;margin-bottom:5px;border-radius:9px;font-size:13px;line-height:1.7;color:rgba(255,255,255,.85);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07)}
+.ai-placeholder{font-size:12px;color:rgba(255,255,255,.3);text-align:center;padding:16px}
+
+/* RESPONSIVE */
+@media(max-width:680px){
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .comp-grid{grid-template-columns:1fr 1fr}
+  .logo-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}
+  .co-name{font-size:24px}
+  .co-price{font-size:22px}
+  .hero h1{font-size:32px}
+}
+@media(max-width:420px){.mkt-pills{display:none}}
+</style>
+</head>
+<body>
+
+<header id="mainHeader">
+  <div class="brand">✦ Analyse Fondamentale</div>
+  <div class="mkt-pills" id="mktPills"></div>
+  <div class="search-wrap">
+    <button id="searchBtn" onclick="openSearch()">⌕ Rechercher</button>
+    <div id="searchBox">
+      <span style="color:var(--muted)">⌕</span>
+      <input id="searchInput" placeholder="Apple, LVMH, AAPL…" oninput="doSearch(this.value)" onkeydown="if(event.key==='Escape')closeSearch()"/>
+      <button onclick="closeSearch()">✕</button>
+    </div>
+    <div id="results"></div>
+  </div>
+</header>
+
+<div id="home">
+  <main>
+    <div class="hero">
+      <h1>Marchés financiers</h1>
+      <p>Analyse fondamentale · Données temps réel · CAC 40, S&P 500, DAX</p>
+    </div>
+    <div id="markets"><div class="loading-state"><span class="spinner"></span>Chargement des marchés…</div></div>
+  </main>
+</div>
+
+<div id="detail">
+  <div class="inner">
+    <button class="back-btn" onclick="showHome()">← Marchés</button>
+    <div id="detailContent"><div class="loading-state"><span class="spinner"></span></div></div>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────
+const KEY = "s0BLKiROWmOfW3hanrhkAkIKKNl5Wo7L";
+const v3 = p => `https://financialmodelingprep.com/api/v3/${p}${p.includes('?')?'&':'?'}apikey=${KEY}`;
+const v4 = p => `https://financialmodelingprep.com/api/v4/${p}${p.includes('?')?'&':'?'}apikey=${KEY}`;
+
+const MARKETS = {
+  "CAC 40":          ["MC.PA","TTE.PA","SAN.PA","BNP.PA","AIR.PA","OR.PA","SU.PA","RI.PA","DG.PA","KER.PA","BN.PA","ACA.PA","GLE.PA","RMS.PA","CS.PA","ORA.PA","CAP.PA","ML.PA","EN.PA"],
+  "S&P 500 — Tech":  ["AAPL","MSFT","NVDA","GOOGL","META","AMZN","AVGO","ORCL","AMD","TSM"],
+  "S&P 500 — Finance":["JPM","V","MA","BAC","WFC","GS","MS","BLK","AXP","C"],
+  "S&P 500 — Santé": ["LLY","JNJ","UNH","ABBV","MRK","TMO","ABT","DHR","PFE","AMGN"],
+  "DAX":             ["SAP","SIE.DE","ALV.DE","MBG.DE","BMW.DE","DTE.DE","BAYN.DE","DBK.DE","BAS.DE","MUV2.DE"],
+};
+
+// Company themes — bg/accent/card define the immersive dark palette
+const THEMES = {
+  AAPL:{bg:"#000000",accent:"#e8e8ed",card:"#1c1c1e"},
+  MSFT:{bg:"#001428",accent:"#50bfff",card:"#001e38"},
+  NVDA:{bg:"#061a00",accent:"#76b900",card:"#0a2200"},
+  GOOGL:{bg:"#081028",accent:"#4285f4",card:"#0e1a3e"},
+  META:{bg:"#0a1428",accent:"#0866ff",card:"#0e1e3c"},
+  AMZN:{bg:"#0c0e14",accent:"#ff9900",card:"#141820"},
+  AVGO:{bg:"#1a0000",accent:"#e05040",card:"#220000"},
+  ORCL:{bg:"#180500",accent:"#f05030",card:"#220800"},
+  AMD:{bg:"#100000",accent:"#ff2020",card:"#180000"},
+  TSM:{bg:"#001030",accent:"#3b7fdf",card:"#001840"},
+  JPM:{bg:"#000c1e",accent:"#2e7fd8",card:"#001028"},
+  V:{bg:"#06082a",accent:"#f7b600",card:"#0c1036"},
+  MA:{bg:"#180000",accent:"#eb001b",card:"#220000"},
+  BAC:{bg:"#000a20",accent:"#e31837",card:"#00112e"},
+  WFC:{bg:"#180000",accent:"#d71e2b",card:"#220000"},
+  GS:{bg:"#0a0a0a",accent:"#8ab4cc",card:"#141414"},
+  MS:{bg:"#000c22",accent:"#0062a8",card:"#001030"},
+  BLK:{bg:"#080808",accent:"#d4a839",card:"#101010"},
+  AXP:{bg:"#001828",accent:"#007bc0",card:"#002038"},
+  C:{bg:"#00081a",accent:"#1a6ab5",card:"#001024"},
+  LLY:{bg:"#180000",accent:"#e03020",card:"#220000"},
+  JNJ:{bg:"#0e0000",accent:"#cc0000",card:"#160000"},
+  UNH:{bg:"#001020",accent:"#316bbf",card:"#001830"},
+  ABBV:{bg:"#00001a",accent:"#5566cc",card:"#000826"},
+  MRK:{bg:"#001a18",accent:"#00857c",card:"#002020"},
+  TMO:{bg:"#001030",accent:"#2060cc",card:"#001840"},
+  ABT:{bg:"#0e0000",accent:"#cc0000",card:"#160000"},
+  DHR:{bg:"#001828",accent:"#0076ce",card:"#002038"},
+  PFE:{bg:"#001828",accent:"#0093c8",card:"#002038"},
+  AMGN:{bg:"#001020",accent:"#00539b",card:"#001830"},
+  "MC.PA":{bg:"#100e00",accent:"#d4a84b",card:"#181400"},
+  "TTE.PA":{bg:"#1a0000",accent:"#e81930",card:"#220000"},
+  "SAN.PA":{bg:"#180028",accent:"#9940c0",card:"#200030"},
+  "BNP.PA":{bg:"#001a08",accent:"#009a44",card:"#002010"},
+  "AIR.PA":{bg:"#000a1e",accent:"#0055cc",card:"#001030"},
+  "OR.PA":{bg:"#120f00",accent:"#c8a050",card:"#1a1400"},
+  "SU.PA":{bg:"#001a00",accent:"#3dcd58",card:"#002200"},
+  "RI.PA":{bg:"#100800",accent:"#c07030",card:"#180e00"},
+  "DG.PA":{bg:"#100a00",accent:"#f5a623",card:"#181400"},
+  "KER.PA":{bg:"#0c0800",accent:"#c89040",card:"#140e00"},
+  "BN.PA":{bg:"#001028",accent:"#0074c8",card:"#001830"},
+  "ACA.PA":{bg:"#001a08",accent:"#007947",card:"#002010"},
+  "GLE.PA":{bg:"#180000",accent:"#e3000f",card:"#220000"},
+  "RMS.PA":{bg:"#100800",accent:"#c87040",card:"#180e00"},
+  "CS.PA":{bg:"#00001c",accent:"#3333cc",card:"#000828"},
+  "ORA.PA":{bg:"#1a0800",accent:"#ff7900",card:"#221000"},
+  "CAP.PA":{bg:"#001020",accent:"#0070ad",card:"#001830"},
+  "ML.PA":{bg:"#180000",accent:"#e4002b",card:"#220000"},
+  "EN.PA":{bg:"#000a1e",accent:"#0046be",card:"#001028"},
+  SAP:{bg:"#001828",accent:"#0077b9",card:"#002038"},
+  "SIE.DE":{bg:"#001818",accent:"#00b0b0",card:"#002020"},
+  "ALV.DE":{bg:"#000c22",accent:"#1a4fa0",card:"#001030"},
+  "MBG.DE":{bg:"#0a0a0a",accent:"#c0c0c0",card:"#141414"},
+  "BMW.DE":{bg:"#001030",accent:"#1c69d4",card:"#001840"},
+  "DTE.DE":{bg:"#1a0010",accent:"#e20074",card:"#240018"},
+  "BAYN.DE":{bg:"#001030",accent:"#10a0d3",card:"#001840"},
+  "DBK.DE":{bg:"#000c20",accent:"#0060cc",card:"#001028"},
+  "BAS.DE":{bg:"#001028",accent:"#004f9f",card:"#001838"},
+  "MUV2.DE":{bg:"#000c22",accent:"#1a4fa0",card:"#001030"},
+  _:{bg:"#0a0a14",accent:"#5577cc",card:"#10101e"},
+};
+
+// ─── GEO MAPPING ───────────────────────────────────────────
+const GEO_KW={asia:["asia","china","japan","korea","india","southeast","pacific","hong kong","singapore","taiwan","apac"],usa:["united states","north america","americas","canada","usa","us ","u.s."],europe:["europe","germany","france","uk","britain","italy","spain","emea","netherlands","switzerland"],latam:["latin america","brazil","mexico","south america"],middle:["middle east","africa","mea","gulf","saudi"],other:["other","rest of","worldwide","rest"]};
+const GEO_L={asia:"Asie-Pacifique",usa:"Amériques",europe:"Europe",latam:"Amér. latine",middle:"MO & Afrique",other:"Autres"};
+const GEO_C={asia:"#f59e0b",usa:"#3b82f6",europe:"#10b981",latam:"#ec4899",middle:"#f97316",other:"#8b5cf6"};
+
+// ─── FORMATTERS ────────────────────────────────────────────
+const fmt=(n,d=1)=>{if(n==null||isNaN(n))return"—";const a=Math.abs(n);if(a>=1e12)return(n/1e12).toFixed(d)+"T";if(a>=1e9)return(n/1e9).toFixed(d)+"Md";if(a>=1e6)return(n/1e6).toFixed(d)+"M";return(+n).toFixed(d);};
+const fmtP=n=>n==null||isNaN(n)?"—":(n*100).toFixed(1)+"%";
+const fmtR=(n,d=2)=>n==null||isNaN(n)?"—":(+n).toFixed(d);
+const fmtPct=n=>n==null||isNaN(n)?"—":n.toFixed(1)+"%";
+
+// ─── STATE ─────────────────────────────────────────────────
+let state={};
+let charts={ratios:null,sector:null,radar:null};
+let currentTab='income';
+
+// ─── SEARCH ────────────────────────────────────────────────
+let sTimer;
+function openSearch(){document.getElementById('searchBtn').style.display='none';const b=document.getElementById('searchBox');b.style.display='flex';b.querySelector('input').focus();}
+function closeSearch(){document.getElementById('searchBtn').style.display='flex';document.getElementById('searchBox').style.display='none';document.getElementById('results').style.display='none';document.getElementById('searchInput').value='';}
+function doSearch(q){
+  clearTimeout(sTimer);
+  if(!q||q.length<2){document.getElementById('results').style.display='none';return;}
+  sTimer=setTimeout(async()=>{
+    try{
+      const d=await fetch(v3(`search?query=${encodeURIComponent(q)}&limit=10`)).then(r=>r.json());
+      const items=(d||[]).filter(x=>x.exchangeShortName&&["NYSE","NASDAQ","EURONEXT","XETRA","LSE"].includes(x.exchangeShortName)).slice(0,6);
+      const el=document.getElementById('results');
+      if(!items.length){el.style.display='none';return;}
+      el.innerHTML=items.map(r=>`<div class="res-item" onclick="loadDetail('${r.symbol}')"><div><span class="res-name">${r.name}</span><span class="res-ticker">${r.symbol}</span></div><span class="res-ex">${r.exchangeShortName}</span></div>`).join('');
+      el.style.display='block';
+    }catch(e){}
+  },300);
+}
+
+// ─── HOME ──────────────────────────────────────────────────
+async function loadHome(){
+  const el=document.getElementById('markets');
+  const pills=document.getElementById('mktPills');
+  let html='';
+
+  for(const[name,tickers] of Object.entries(MARKETS)){
+    const id='mkt-'+name.replace(/[^a-z0-9]/gi,'');
+    pills.innerHTML+=`<button class="mkt-pill" onclick="document.getElementById('${id}').scrollIntoView({behavior:'smooth'});this.parentElement.querySelectorAll('.mkt-pill').forEach(p=>p.classList.remove('on'));this.classList.add('on')">${name}</button>`;
+    html+=`<div class="mkt-section" id="${id}">
+      <div class="mkt-head"><span class="mkt-label">${name}</span><span class="mkt-sub" id="sub-${id}">Chargement…</span></div>
+      <div class="logo-grid" id="grid-${id}"><div class="loading-state" style="grid-column:1/-1;padding:24px 0"><span class="spinner"></span></div></div>
+    </div>`;
+  }
+  el.innerHTML=html;
+
+  for(const[name,tickers] of Object.entries(MARKETS)){
+    const id='mkt-'+name.replace(/[^a-z0-9]/gi,'');
+    try{
+      const [quotes, profiles]=await Promise.all([
+        fetch(v3(`quote/${tickers.join(',')}`)).then(r=>r.json()),
+        fetch(v3(`profile/${tickers.join(',')}`)).then(r=>r.json()),
+      ]);
+      const profMap={};
+      (Array.isArray(profiles)?profiles:[]).forEach(p=>profMap[p.symbol]=p);
+      const cos=(Array.isArray(quotes)?quotes:[]).filter(q=>q&&q.symbol).sort((a,b)=>(b.marketCap||0)-(a.marketCap||0));
+      document.getElementById('sub-'+id).textContent=`${cos.length} entreprises · capitalisation décroissante`;
+      const t=THEMES;
+      document.getElementById('grid-'+id).innerHTML=cos.map(co=>{
+        const th=t[co.symbol]||t._;
+        const img=profMap[co.symbol]?.image||`https://financialmodelingprep.com/image-stock/${co.symbol}.png`;
+        return`<div class="logo-card" style="background:${th.bg||'#fff'};border-color:${th.accent}22" onclick="loadDetail('${co.symbol}')">
+          <img src="${img}" alt="${co.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="logo-fallback" style="display:none">${co.symbol}</div>
+          <div class="logo-tip">
+            <div class="logo-tip-name">${co.name||co.symbol}</div>
+            <div class="logo-tip-cap">${fmt(co.marketCap)}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }catch(e){
+      document.getElementById('grid-'+id).innerHTML=`<div style="grid-column:1/-1;color:#B0A898;font-size:12px;padding:12px">Erreur de chargement</div>`;
+    }
+  }
+}
+
+// ─── NAVIGATION ────────────────────────────────────────────
+function showHome(){
+  document.getElementById('home').style.display='block';
+  document.getElementById('detail').style.cssText='display:none';
+  resetHeaderTheme();
+}
+
+function applyTheme(ticker){
+  const th=THEMES[ticker]||THEMES._;
+  const d=document.getElementById('detail');
+  d.style.background=th.bg;
+  d.style.setProperty('--co-accent',th.accent);
+  d.style.setProperty('--co-card',th.card);
+  const h=document.getElementById('mainHeader');
+  h.style.background=th.bg+'ee';
+  h.style.borderBottomColor='rgba(255,255,255,.08)';
+  h.querySelector('.brand').style.color=th.accent;
+}
+function resetHeaderTheme(){
+  const h=document.getElementById('mainHeader');
+  h.style.background='';h.style.borderBottomColor='';
+  h.querySelector('.brand').style.color='';
+}
+
+// ─── LOAD DETAIL ───────────────────────────────────────────
+async function loadDetail(ticker){
+  closeSearch();
+  document.getElementById('home').style.display='none';
+  const d=document.getElementById('detail');
+  d.style.display='block';
+  applyTheme(ticker);
+  document.getElementById('detailContent').innerHTML='<div class="loading-state" style="color:rgba(255,255,255,.4)"><span class="spinner" style="border-top-color:var(--co-accent,#88aaff)"></span>Chargement…</div>';
+  Object.values(charts).forEach(c=>{try{c&&c.destroy()}catch(e){}});
+  charts={ratios:null,sector:null,radar:null};
+  currentTab='income';
+
+  try{
+    const [pR,qR,iR,bR,cR,gR,sR,kR,peR]=await Promise.all([
+      fetch(v3(`profile/${ticker}`)),
+      fetch(v3(`quote/${ticker}`)),
+      fetch(v3(`income-statement/${ticker}?period=quarter&limit=8`)),
+      fetch(v3(`balance-sheet-statement/${ticker}?period=quarter&limit=4`)),
+      fetch(v3(`cash-flow-statement/${ticker}?period=quarter&limit=4`)),
+      fetch(v4(`revenue-geographic-segmentation?symbol=${ticker}&period=annual`)),
+      fetch(v4(`revenue-product-segmentation?symbol=${ticker}&period=annual`)),
+      fetch(v3(`key-metrics/${ticker}?period=annual&limit=5`)),
+      fetch(v3(`stock-peers?symbol=${ticker}`)),
+    ]);
+    const [prof,quo,inc,bal,cf,geo,seg,km,pe]=await Promise.all([pR,qR,iR,bR,cR,gR,sR,kR,peR].map(r=>r.json()));
+
+    const km0=(Array.isArray(km)?km:[km]).find(x=>x?.symbol)||km?.[0]||{};
+    state={
+      ticker,
+      co:{...(prof[0]||{}),... (Array.isArray(quo)?quo[0]:quo||{}),km:km0},
+      inc:inc||[],bal:bal||[],cf:cf||[],
+      geo:Array.isArray(geo)?geo:(geo?[geo]:[]),
+      seg:Array.isArray(seg)?seg:(seg?[seg]:[]),
+      km:Array.isArray(km)?km:[],
+    };
+
+    // Load peers
+    const peerList=((Array.isArray(pe)?pe[0]:pe)?.peersList||[]).slice(0,3);
+    state.peers=[];
+    if(peerList.length){
+      try{
+        const [pqR,pkR]=await Promise.all([
+          fetch(v3(`quote/${peerList.join(',')}`)),
+          fetch(v3(`key-metrics/${peerList.join(',')}?period=annual&limit=1`)),
+        ]);
+        const [pq,pk]=await Promise.all([pqR.json(),pkR.json()]);
+        const pqMap={},pkMap={};
+        (Array.isArray(pq)?pq:[]).forEach(x=>pqMap[x.symbol]=x);
+        (Array.isArray(pk)?pk:[]).forEach(x=>pkMap[x.symbol]=pkMap[x.symbol]||x);
+        state.peers=peerList.map(s=>({symbol:s,...(pqMap[s]||{}),...(pkMap[s]?{km:pkMap[s]}:{})}));
+      }catch(e){}
+    }
+
+    renderDetail();
+  }catch(e){
+    document.getElementById('detailContent').innerHTML=`<div style="color:#f87171;padding:20px;font-size:13px">Erreur : ${e.message}</div>`;
+  }
+}
+
+// ─── GEO AGGREGATION ───────────────────────────────────────
+function classGeo(n){const l=(n||'').toLowerCase();for(const[k,kw]of Object.entries(GEO_KW)){if(kw.some(w=>l.includes(w)))return k;}return'other';}
+function getGeoAgg(){
+  if(!state.geo||!state.geo.length)return[];
+  const raw=state.geo[0]?.data||state.geo[0];
+  if(!raw||typeof raw!=='object')return[];
+  const agg={};
+  for(const[r,v]of Object.entries(raw)){const c=classGeo(r);agg[c]=(agg[c]||0)+(+v||0);}
+  const tot=Object.values(agg).reduce((s,v)=>s+v,0)||1;
+  return Object.entries(agg).map(([k,v])=>({id:k,name:GEO_L[k]||k,pct:Math.round(v/tot*100),color:GEO_C[k]||'#8b5cf6'})).sort((a,b)=>b.pct-a.pct).filter(g=>g.pct>0);
+}
+
+function getSegAgg(){
+  if(!state.seg||!state.seg.length)return[];
+  const raw=state.seg[0]?.data||state.seg[0];
+  if(!raw||typeof raw!=='object')return[];
+  const tot=Object.values(raw).reduce((s,v)=>s+(+v||0),0)||1;
+  const palette=['#818cf8','#34d399','#fb923c','#f472b6','#60a5fa','#a78bfa','#fbbf24','#4ade80'];
+  return Object.entries(raw).map(([name,v],i)=>({name,pct:Math.round((+v||0)/tot*100),color:palette[i%palette.length]})).sort((a,b)=>b.pct-a.pct).filter(s=>s.pct>0).slice(0,8);
+}
+
+// ─── RENDER ────────────────────────────────────────────────
+function renderDetail(){
+  const{co,ticker,inc,bal,cf,km,peers}=state;
+  const th=THEMES[ticker]||THEMES._;
+  const chg=co.changesPercentage||0;
+  const geo=getGeoAgg();
+  const seg=getSegAgg();
+
+  const incCols=inc.slice(0,6);
+  const incRows=incCols.map(q=>`<tr>
+    <td>${q.date?.slice(0,7)||'—'}</td>
+    <td>${fmt(q.revenue)}</td>
+    <td style="color:${th.accent}">${fmtP(q.grossProfitRatio)}</td>
+    <td>${fmt(q.ebitda)}</td>
+    <td style="color:${q.netIncome>=0?'#4ade80':'#f87171'}">${fmt(q.netIncome)}</td>
+    <td style="color:${th.accent}">${fmtP(q.netIncomeRatio)}</td>
+  </tr>`).join('');
+
+  const b=bal[0]||{};
+  const c=cf[0]||{};
+
+  const geoBars=geo.length?geo.map(g=>`<div class="geo-row">
+    <div class="geo-dot" style="background:${g.color}"></div>
+    <div class="geo-name">${g.name}</div>
+    <div class="geo-track"><div class="geo-fill" style="width:${g.pct}%;background:${g.color}"></div></div>
+    <div class="geo-pct" style="color:${g.color}">${g.pct}%</div>
+  </div>`).join(''):'<div style="color:rgba(255,255,255,.3);font-size:12px;text-align:center;padding:16px">Données géographiques non disponibles</div>';
+
+  const segBars=seg.length?seg.map(s=>`<div class="geo-row">
+    <div class="geo-dot" style="background:${s.color}"></div>
+    <div class="geo-name" style="width:160px">${s.name}</div>
+    <div class="geo-track"><div class="geo-fill" style="width:${s.pct}%;background:${s.color}"></div></div>
+    <div class="geo-pct" style="color:${s.color}">${s.pct}%</div>
+  </div>`).join(''):'<div style="color:rgba(255,255,255,.3);font-size:12px;text-align:center;padding:16px">Données sectorielles non disponibles</div>';
+
+  // Peer table
+  const peerCols=[co,...peers].slice(0,4);
+  const peerMetrics=[
+    ['Capitalisation',x=>fmt(x.marketCap||x.mktCap)],
+    ['PER',x=>x.pe?fmtR(x.pe,1)+'×':x.km?.peRatio?fmtR(x.km.peRatio,1)+'×':'—'],
+    ['Marge nette',x=>{const km=x.km;if(!km)return'—';const m=km.netIncomePerShare&&km.revenuePerShare?km.netIncomePerShare/km.revenuePerShare*100:null;return m!=null?fmtPct(m):'—';}],
+    ['ROE',x=>x.km?.roe!=null?fmtPct(x.km.roe*100):'—'],
+    ['EV/EBITDA',x=>x.km?.evToEbitda?fmtR(x.km.evToEbitda,1)+'×':'—'],
+  ];
+
+  const imgUrl=s=>`https://financialmodelingprep.com/image-stock/${s}.png`;
+  const peerHTML=`<div class="comp-grid" style="grid-template-columns:repeat(${peerCols.length},1fr)">
+    ${peerCols.map(p=>`<div class="comp-col">
+      <div class="comp-cell comp-header" style="padding:12px">
+        <img src="${p.image||imgUrl(p.symbol)}" onerror="this.style.display='none'" alt="${p.symbol}" style="width:28px;height:28px;border-radius:6px;object-fit:contain;background:rgba(255,255,255,.9);padding:3px;margin-right:6px"/>
+        <span>${p.symbol}</span>
+      </div>
+      ${peerMetrics.map(([label,fn])=>`<div class="comp-cell"><div class="comp-label">${label}</div><div class="comp-val">${fn(p)}</div></div>`).join('')}
+    </div>`).join('')}
+  </div>`;
+
+  document.getElementById('detailContent').innerHTML=`
+    <div class="co-hero">
+      <div class="co-top">
+        <div class="co-name-block">
+          ${co.image?`<img class="co-logo" src="${co.image}" alt="${co.symbol}" onerror="this.outerHTML='<div class=co-logo-fallback>${co.symbol}</div>'">`:`<div class="co-logo-fallback">${co.symbol}</div>`}
+          <div>
+            <div class="co-name">${co.companyName||co.name||co.symbol}</div>
+            <div class="co-meta">${co.symbol} · ${co.exchangeShortName||''} · ${co.sector||''} · ${co.industry||''}</div>
+          </div>
+        </div>
+        <div class="co-price-block">
+          <div class="co-price">${fmtR(co.price,2)} <span style="font-size:16px;opacity:.5">${co.currency||''}</span></div>
+          <div class="co-chg ${chg>=0?'pos':'neg'}">${chg>=0?'+':''}${fmtR(chg,2)}% aujourd'hui</div>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi-label">Capitalisation</div><div class="kpi-val accent">${fmt(co.mktCap||co.marketCap)}</div></div>
+        <div class="kpi"><div class="kpi-label">PER</div><div class="kpi-val">${co.pe?fmtR(co.pe,1)+'×':'—'}</div></div>
+        <div class="kpi"><div class="kpi-label">Dividende</div><div class="kpi-val">${co.lastDiv?fmtR(co.lastDiv,2)+' '+(co.currency||''):'—'}</div></div>
+        <div class="kpi"><div class="kpi-label">Bêta</div><div class="kpi-val">${co.beta?fmtR(co.beta,2):'—'}</div></div>
+      </div>
+    </div>
+
+    <div class="sec-title">États financiers</div>
+    <div class="card-d">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <span style="font-size:13px;font-weight:600;color:rgba(255,255,255,.8)">8 derniers trimestres</span>
+        <div class="tabs">
+          <button class="tab-btn on" onclick="switchTab('income',this)">Résultats</button>
+          <button class="tab-btn" onclick="switchTab('balance',this)">Bilan</button>
+          <button class="tab-btn" onclick="switchTab('cashflow',this)">Cash Flow</button>
+        </div>
+      </div>
+      <div id="tabContent" style="overflow-x:auto">
+        <table class="tbl"><thead><tr><th style="text-align:left">Trimestre</th><th>Chiffre d'affaires</th><th>Marge brute</th><th>EBITDA</th><th>Résultat net</th><th>Marge nette</th></tr></thead>
+        <tbody>${incRows}</tbody></table>
+      </div>
+    </div>
+
+    <div class="sec-title">Ratios historiques</div>
+    <div class="card-d"><div class="chart-wrap"><canvas id="ratiosChart"></canvas></div></div>
+
+    <div class="sec-title">Répartition géographique du CA</div>
+    <div class="card-d">${geoBars}</div>
+
+    ${seg.length?`<div class="sec-title">Répartition sectorielle du CA</div><div class="card-d">${segBars}</div>`:''}
+
+    <div class="sec-title">Comparaison concurrents</div>
+    <div class="card-d" style="padding:0;overflow:hidden">${peerHTML}</div>
+    ${peers.length?`<div class="card-d" style="margin-top:14px"><div class="chart-wrap-sm"><canvas id="radarChart"></canvas></div></div>`:''}
+
+    <div class="sec-title">Analyse IA</div>
+    <div class="card-d">
+      <div class="ai-btns">
+        <button class="ai-btn" onclick="runAI('resultats',this)">📊 Résultats</button>
+        <button class="ai-btn" onclick="runAI('bilan',this)">🏦 Bilan</button>
+        <button class="ai-btn" onclick="runAI('cashflow',this)">💰 Cash Flow</button>
+        <button class="ai-btn" onclick="runAI('geo',this)">🌍 Géographie</button>
+        <button class="ai-btn" onclick="runAI('concurrents',this)">⚡ Concurrents</button>
+      </div>
+      <div id="aiResult" class="ai-placeholder">Clique sur un sujet pour lancer l'analyse</div>
+    </div>
+    <div style="text-align:center;font-size:10px;color:rgba(255,255,255,.2);margin-top:20px">Données Financial Modeling Prep · Ceci n'est pas un conseil en investissement</div>
+  `;
+
+  setTimeout(()=>{
+    renderRatiosChart(km);
+    if(peers.length) renderRadarChart(co,peers);
+  },60);
+}
+
+// ─── TAB SWITCHING ─────────────────────────────────────────
+function switchTab(tab,btn){
+  currentTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const{inc,bal,cf}=state;
+  const b=bal[0]||{};
+  const c=cf[0]||{};
+  const th=THEMES[state.ticker]||THEMES._;
+
+  const tabs={
+    income:`<table class="tbl"><thead><tr><th style="text-align:left">Trimestre</th><th>Chiffre d'affaires</th><th>Marge brute</th><th>EBITDA</th><th>Résultat net</th><th>Marge nette</th></tr></thead>
+      <tbody>${inc.slice(0,6).map(q=>`<tr><td>${q.date?.slice(0,7)||'—'}</td><td>${fmt(q.revenue)}</td><td style="color:${th.accent}">${fmtP(q.grossProfitRatio)}</td><td>${fmt(q.ebitda)}</td><td style="color:${q.netIncome>=0?'#4ade80':'#f87171'}">${fmt(q.netIncome)}</td><td style="color:${th.accent}">${fmtP(q.netIncomeRatio)}</td></tr>`).join('')}
+      </tbody></table>`,
+    balance:[
+      ['Cash & équivalents',b.cashAndCashEquivalents,false],
+      ['Créances',b.netReceivables,false],
+      ['Stocks',b.inventory,false],
+      ['Total actif courant',b.totalCurrentAssets,true],
+      ['Immobilisations nettes',b.propertyPlantEquipmentNet,false],
+      ['Total actifs',b.totalAssets,true],
+      [null,null,false],
+      ['Dettes court terme',b.shortTermDebt,false],
+      ['Dettes fournisseurs',b.accountPayables,false],
+      ['Total passif courant',b.totalCurrentLiabilities,true],
+      ['Dettes long terme',b.longTermDebt,false],
+      ['Total dettes',b.totalDebt,true],
+      ['Capitaux propres',b.totalStockholdersEquity,true],
+    ].map(([l,v,bold])=>l?`<div style="display:flex;justify-content:space-between;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px"><span style="color:${bold?'rgba(255,255,255,.8)':'rgba(255,255,255,.45)'};font-weight:${bold?600:400}">${l}</span><span style="font-family:'DM Mono',monospace;color:${bold?'#fff':'rgba(255,255,255,.7)'};font-weight:${bold?600:400}">${fmt(v)}</span></div>`:'<div style="height:6px"></div>').join(''),
+    cashflow:[
+      ['Cash flow opérationnel',c.operatingCashFlow,true],
+      ['dont Dépréciation/Amort.',c.depreciationAndAmortization,false],
+      ['Investissements (Capex)',c.capitalExpenditure,false],
+      ['Free Cash Flow',c.freeCashFlow,true],
+      ['Dividendes versés',c.dividendsPaid,false],
+      ['Rachats d\'actions',c.commonStockRepurchased,false],
+      ['Variation nette de trésorerie',c.netChangeInCash,true],
+    ].map(([l,v,bold])=>`<div style="display:flex;justify-content:space-between;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px"><span style="color:${bold?'rgba(255,255,255,.8)':'rgba(255,255,255,.45)'};font-weight:${bold?600:400}">${l}</span><span style="font-family:'DM Mono',monospace;color:${v>=0?'#4ade80':'#f87171'};font-weight:${bold?600:400}">${fmt(v)}</span></div>`).join(''),
+  };
+  document.getElementById('tabContent').innerHTML=tabs[tab]||'';
+}
+
+// ─── RATIOS CHART ──────────────────────────────────────────
+function renderRatiosChart(km){
+  const el=document.getElementById('ratiosChart');
+  if(!el||!km||!km.length)return;
+  const th=THEMES[state.ticker]||THEMES._;
+  const labels=km.map(m=>m.date?.slice(0,4)||'').reverse();
+  const peMarg=km.map(m=>m.peRatio!=null?+m.peRatio:null).reverse();
+  const roeMarg=km.map(m=>m.roe!=null?+(m.roe*100).toFixed(1):null).reverse();
+  const netMarg=km.map(m=>m.netIncomePerShare&&m.revenuePerShare?+(m.netIncomePerShare/m.revenuePerShare*100).toFixed(1):null).reverse();
+  const fcfY=km.map(m=>m.freeCashFlowYield!=null?+(m.freeCashFlowYield*100).toFixed(1):null).reverse();
+
+  charts.ratios=new Chart(el,{type:'line',data:{labels,datasets:[
+    {label:'PER',data:peMarg,borderColor:th.accent,backgroundColor:th.accent+'20',tension:.35,pointRadius:4,pointBackgroundColor:th.accent,yAxisID:'y'},
+    {label:'ROE %',data:roeMarg,borderColor:'#34d399',backgroundColor:'#34d39920',tension:.35,pointRadius:4,pointBackgroundColor:'#34d399',yAxisID:'y1'},
+    {label:'Marge nette %',data:netMarg,borderColor:'#fb923c',backgroundColor:'#fb923c20',tension:.35,pointRadius:4,pointBackgroundColor:'#fb923c',yAxisID:'y1'},
+    {label:'FCF Yield %',data:fcfY,borderColor:'#a78bfa',backgroundColor:'#a78bfa20',tension:.35,pointRadius:4,pointBackgroundColor:'#a78bfa',yAxisID:'y1'},
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'rgba(255,255,255,.5)',font:{size:10},boxWidth:10,padding:12}}},scales:{
+    x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'rgba(255,255,255,.4)',font:{size:10}}},
+    y:{position:'left',grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'rgba(255,255,255,.4)',font:{size:10}},title:{display:true,text:'PER',color:'rgba(255,255,255,.3)',font:{size:9}}},
+    y1:{position:'right',grid:{display:false},ticks:{color:'rgba(255,255,255,.4)',font:{size:10}},title:{display:true,text:'%',color:'rgba(255,255,255,.3)',font:{size:9}}},
+  }}});
+}
+
+// ─── RADAR CHART ───────────────────────────────────────────
+function renderRadarChart(co,peers){
+  const el=document.getElementById('radarChart');
+  if(!el)return;
+  const th=THEMES[state.ticker]||THEMES._;
+  const companies=[co,...peers].slice(0,4);
+  const labels=['Marge nette','ROE','PER inv.','EV/EBITDA inv.','Liquidité'];
+  const colors=[th.accent,'#34d399','#fb923c','#a78bfa'];
+
+  const normalize=(val,min,max)=>val==null?0:Math.max(0,Math.min(100,((val-min)/(max-min||1))*100));
+
+  const vals=companies.map(c=>{
+    const km=c.km||{};
+    return{
+      marge:km.netIncomePerShare&&km.revenuePerShare?km.netIncomePerShare/km.revenuePerShare*100:null,
+      roe:km.roe!=null?km.roe*100:null,
+      per:km.peRatio||c.pe||null,
+      ev:km.evToEbitda||null,
+      ratio:km.currentRatio||null,
+    };
+  });
+
+  const ds=companies.map((c,i)=>{
+    const v=vals[i];
+    return{label:c.symbol||c.name,data:[
+      normalize(v.marge,-10,50),
+      normalize(v.roe,-20,80),
+      normalize(v.per!=null?100-Math.min(v.per,80):null,0,100),
+      normalize(v.ev!=null?50-v.ev:null,-30,50),
+      normalize(v.ratio,0,4),
+    ],borderColor:colors[i],backgroundColor:colors[i]+'22',pointBackgroundColor:colors[i],pointRadius:3,borderWidth:2};
+  });
+
+  charts.radar=new Chart(el,{type:'radar',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'rgba(255,255,255,.5)',font:{size:10},boxWidth:10}}},scales:{r:{grid:{color:'rgba(255,255,255,.1)'},angleLines:{color:'rgba(255,255,255,.1)'},pointLabels:{color:'rgba(255,255,255,.5)',font:{size:10}},ticks:{display:false},min:0,max:100}}}});
+}
+
+// ─── AI ANALYSIS ───────────────────────────────────────────
+async function runAI(scope,btn){
+  const{co,inc,bal,cf,ticker}=state;
+  const geo=getGeoAgg();
+  const peers=state.peers||[];
+  const el=document.getElementById('aiResult');
+  document.querySelectorAll('.ai-btn').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+
+  el.style.display='block';
+  el.className='ai-placeholder';
+  el.innerHTML='<span class="spinner" style="border-top-color:var(--co-accent,#88aaff)"></span>Analyse en cours…';
+
+  const prompts={
+    resultats:`Tu es analyste financier. Analyse pour un investisseur non expert les résultats récents de ${co.companyName||ticker}. CA dernier trimestre: ${fmt(inc[0]?.revenue)}, marge brute: ${fmtP(inc[0]?.grossProfitRatio)}, résultat net: ${fmt(inc[0]?.netIncome)}, marge nette: ${fmtP(inc[0]?.netIncomeRatio)}. Donne 4 points clés concis en français, en bullet points (•), sans jargon.`,
+    bilan:`Analyse le bilan de ${co.companyName||ticker}: actifs totaux ${fmt(bal[0]?.totalAssets)}, dettes totales ${fmt(bal[0]?.totalDebt)}, capitaux propres ${fmt(bal[0]?.totalStockholdersEquity)}, liquidités ${fmt(bal[0]?.cashAndCashEquivalents)}. 4 points clés en français sur la solidité financière.`,
+    cashflow:`Analyse les flux de trésorerie de ${co.companyName||ticker}: cash flow opérationnel ${fmt(cf[0]?.operatingCashFlow)}, capex ${fmt(cf[0]?.capitalExpenditure)}, free cash flow ${fmt(cf[0]?.freeCashFlow)}, dividendes ${fmt(cf[0]?.dividendsPaid)}. 4 points clés en français.`,
+    geo:geo.length?`Analyse la répartition géographique du CA de ${co.companyName||ticker}: ${geo.map(g=>`${g.name} ${g.pct}%`).join(', ')}. Quels sont les risques et opportunités de cette exposition géographique? 4 points en français.`:'Données géographiques insuffisantes.',
+    concurrents:`Compare ${co.companyName||ticker} (PER: ${fmtR(co.pe,1)}, cap: ${fmt(co.mktCap||co.marketCap)}) avec ses pairs [${peers.map(p=>p.symbol).join(', ')}]. Donne 4 points sur les forces, faiblesses et positionnement relatif. En français.`,
+  };
+
+  try{
+    const r=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompts[scope]})});
+    const d=await r.json();
+    const txt=d.content?.[0]?.text||'Analyse indisponible.';
+    el.className='ai-out';
+    el.style.display='block';
+    el.innerHTML=txt.split('\n').filter(l=>l.trim()).map(l=>`<div class="ai-line">${l}</div>`).join('');
+  }catch(e){
+    el.className='ai-placeholder';
+    el.innerHTML='<span style="color:#f87171">Erreur de connexion à l\'API.</span>';
+  }
+}
+
+// ─── INIT ──────────────────────────────────────────────────
+loadHome();
+</script>
+</body>
+</html>

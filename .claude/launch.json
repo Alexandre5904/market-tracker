@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Market Tracker",
+      "runtimeExecutable": "ruby",
+      "runtimeArgs": ["-run", "-e", "httpd", "/Users/alex/Desktop/Market Tracker", "-p", "3333"],
+      "port": 3333
+    }
+  ]
+}

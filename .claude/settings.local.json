@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Read(//usr/local/bin/**)",
+      "Bash(npx --yes serve --version)",
+      "Bash(ruby --version)",
+      "Bash(php --version)"
+    ]
+  }
+}
