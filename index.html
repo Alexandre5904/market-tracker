@@ -341,49 +341,68 @@ function doSearch(q){
   },320);
 }
 
+// ─── COMPANIES (static — no API needed for homepage) ─────────────────────────
+const COMPANIES = {
+  "CAC 40":[
+    {s:"MC.PA",n:"LVMH"},{s:"RMS.PA",n:"Hermès"},{s:"OR.PA",n:"L'Oréal"},
+    {s:"TTE.PA",n:"TotalEnergies"},{s:"SAN.PA",n:"Sanofi"},{s:"AIR.PA",n:"Airbus"},
+    {s:"SU.PA",n:"Schneider Electric"},{s:"BNP.PA",n:"BNP Paribas"},{s:"CS.PA",n:"AXA"},
+    {s:"DG.PA",n:"Vinci"},{s:"KER.PA",n:"Kering"},{s:"RI.PA",n:"Pernod Ricard"},
+    {s:"BN.PA",n:"Danone"},{s:"ACA.PA",n:"Crédit Agricole"},{s:"GLE.PA",n:"Société Générale"},
+    {s:"ORA.PA",n:"Orange"},{s:"CAP.PA",n:"Capgemini"},{s:"ML.PA",n:"Michelin"},{s:"EN.PA",n:"Bouygues"},
+  ],
+  "S&P 500 — Tech":[
+    {s:"AAPL",n:"Apple"},{s:"MSFT",n:"Microsoft"},{s:"NVDA",n:"NVIDIA"},
+    {s:"GOOGL",n:"Alphabet"},{s:"META",n:"Meta Platforms"},{s:"AMZN",n:"Amazon"},
+    {s:"AVGO",n:"Broadcom"},{s:"ORCL",n:"Oracle"},{s:"AMD",n:"AMD"},{s:"TSM",n:"TSMC"},
+  ],
+  "S&P 500 — Finance":[
+    {s:"JPM",n:"JPMorgan Chase"},{s:"V",n:"Visa"},{s:"MA",n:"Mastercard"},
+    {s:"BAC",n:"Bank of America"},{s:"WFC",n:"Wells Fargo"},{s:"GS",n:"Goldman Sachs"},
+    {s:"MS",n:"Morgan Stanley"},{s:"BLK",n:"BlackRock"},{s:"AXP",n:"American Express"},{s:"C",n:"Citigroup"},
+  ],
+  "S&P 500 — Santé":[
+    {s:"LLY",n:"Eli Lilly"},{s:"JNJ",n:"Johnson & Johnson"},{s:"UNH",n:"UnitedHealth"},
+    {s:"ABBV",n:"AbbVie"},{s:"MRK",n:"Merck"},{s:"TMO",n:"Thermo Fisher"},
+    {s:"ABT",n:"Abbott"},{s:"DHR",n:"Danaher"},{s:"PFE",n:"Pfizer"},{s:"AMGN",n:"Amgen"},
+  ],
+  "DAX":[
+    {s:"SAP",n:"SAP"},{s:"SIE.DE",n:"Siemens"},{s:"ALV.DE",n:"Allianz"},
+    {s:"MBG.DE",n:"Mercedes-Benz"},{s:"BMW.DE",n:"BMW"},{s:"DTE.DE",n:"Deutsche Telekom"},
+    {s:"BAYN.DE",n:"Bayer"},{s:"DBK.DE",n:"Deutsche Bank"},{s:"BAS.DE",n:"BASF"},{s:"MUV2.DE",n:"Munich Re"},
+  ],
+};
+
 // ─── HOMEPAGE ─────────────────────────────────────────────────────────────────
-async function loadHome(){
+function loadHome(){
   const marketsEl=document.getElementById('markets');
   const pillsEl=document.getElementById('mktPills');
-
-  // Build pill nav + placeholder sections
+  pillsEl.innerHTML='';
   let html='';
-  for(const[name,tickers] of Object.entries(MARKETS)){
+  let first=true;
+  for(const[name,companies] of Object.entries(COMPANIES)){
     const id='m'+name.replace(/[^a-z0-9]/gi,'');
-    pillsEl.innerHTML+=`<button class="pill" onclick="document.getElementById('${id}').scrollIntoView({behavior:'smooth'});document.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));this.classList.add('on')">${name}</button>`;
+    pillsEl.innerHTML+=`<button class="pill${first?' on':''}" onclick="document.getElementById('${id}').scrollIntoView({behavior:'smooth'});document.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));this.classList.add('on')">${name}</button>`;
+    first=false;
     html+=`<div class="mkt-section" id="${id}">
-      <div class="mkt-head"><span class="mkt-label">${name}</span><span class="mkt-sub" id="sub-${id}">Chargement…</span></div>
-      <div class="logo-grid" id="grid-${id}"><div class="loading" style="grid-column:1/-1;padding:20px 0"><span class="spinner" style="color:var(--faint)"></span></div></div>
+      <div class="mkt-head"><span class="mkt-label">${name}</span><span class="mkt-sub">${companies.length} entreprises</span></div>
+      <div class="logo-grid">
+        ${companies.map(co=>{
+          const t=THEMES[co.s]||THEMES._;
+          const logo=logoUrl(co.s);
+          return`<div class="logo-card" style="background:${t.bg};border-color:${t.accent}33" onclick="loadDetail('${co.s}')">
+            ${logo?`<img src="${logo}" alt="${co.s}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>`:''}
+            <div class="logo-fb" style="${logo?'':'display:block'}">${co.s}</div>
+            <div class="logo-tip">
+              <div class="logo-tip-name">${co.n}</div>
+              <div class="logo-tip-cap">Cliquer pour analyser</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
     </div>`;
   }
   marketsEl.innerHTML=html;
-
-  // Fetch all quotes in one call
-  const allSymbols=Object.values(MARKETS).flat();
-  let quoteMap={};
-  try{
-    const quotes=await fetch(`/api/quotes?symbols=${allSymbols.join(',')}`).then(r=>r.json());
-    (Array.isArray(quotes)?quotes:[]).forEach(q=>quoteMap[q.symbol]=q);
-  }catch(e){}
-
-  for(const[name,tickers] of Object.entries(MARKETS)){
-    const id='m'+name.replace(/[^a-z0-9]/gi,'');
-    const cos=tickers.map(t=>quoteMap[t]).filter(Boolean).sort((a,b)=>(b.marketCap||0)-(a.marketCap||0));
-    document.getElementById('sub-'+id).textContent=`${cos.length} entreprises · capitalisation décroissante`;
-    const th=THEMES;
-    document.getElementById('grid-'+id).innerHTML=cos.map(co=>{
-      const t=THEMES[co.symbol]||THEMES._;
-      const logo=logoUrl(co.symbol);
-      return`<div class="logo-card" style="background:${t.bg};border-color:${t.accent}33" onclick="loadDetail('${co.symbol}')">
-        ${logo?`<img src="${logo}" alt="${co.symbol}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>`:''}
-        <div class="logo-fb" style="${logo?'':'display:block'}">${co.symbol}</div>
-        <div class="logo-tip">
-          <div class="logo-tip-name">${co.shortName||co.longName||co.symbol}</div>
-          <div class="logo-tip-cap">${fmt(co.marketCap)}</div>
-        </div>
-      </div>`;
-    }).join('')||`<div style="color:var(--faint);font-size:12px;padding:12px;grid-column:1/-1">Données non disponibles</div>`;
-  }
 }
 
 // ─── NAVIGATION ───────────────────────────────────────────────────────────────
@@ -417,15 +436,29 @@ async function loadDetail(ticker){
   Object.values(charts).forEach(c=>{try{c&&c.destroy();}catch(_){}});
   charts={price:null,revenue:null};
 
+  const apiFetch = async (path) => {
+    // Try Vercel function first, then CORS proxy fallback
+    try {
+      const r = await fetch(path);
+      if (!r.ok) throw new Error('status '+r.status);
+      return r.json();
+    } catch(_) {
+      const base = 'https://api.allorigins.win/raw?url=';
+      const r2 = await fetch(base + encodeURIComponent('https://'+location.host+path));
+      if (!r2.ok) throw new Error('proxy failed');
+      return r2.json();
+    }
+  };
+
   try{
     const[data,hist]=await Promise.all([
-      fetch(`/api/company?symbol=${ticker}`).then(r=>r.json()),
-      fetch(`/api/history?symbol=${ticker}`).then(r=>r.json()),
+      apiFetch(`/api/company?symbol=${ticker}`),
+      apiFetch(`/api/history?symbol=${ticker}`),
     ]);
     state={ticker,data,hist};
     renderDetail();
   }catch(e){
-    document.getElementById('detailContent').innerHTML=`<div style="color:#f87171;padding:20px;font-size:13px">Erreur : ${e.message}</div>`;
+    document.getElementById('detailContent').innerHTML=`<div style="color:#f87171;padding:20px;font-size:13px">Erreur de chargement : ${e.message}<br><br><small style="color:rgba(255,255,255,.3)">Les données Yahoo Finance peuvent être temporairement indisponibles. Réessayez dans quelques instants.</small></div>`;
   }
 }
 

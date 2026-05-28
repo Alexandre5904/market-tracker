@@ -1,7 +1,3 @@
 {
-  "framework": null,
-  "builds": [
-    { "src": "api/*.js", "use": "@vercel/node" },
-    { "src": "index.html", "use": "@vercel/static" }
-  ]
+  "framework": null
 }
