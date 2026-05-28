@@ -554,23 +554,80 @@ function applyTheme(ticker){
   document.getElementById('detail').style.setProperty('--co-accent',t.accent);
 }
 
+// ─── FETCH YAHOO FINANCE (3 niveaux de fallback) ────────────────────────────
+const YF_MODULES = 'assetProfile,price,summaryDetail,defaultKeyStatistics,financialData,incomeStatementHistoryQuarterly,balanceSheetHistoryQuarterly,cashflowStatementHistoryQuarterly,incomeStatementHistory,recommendationTrend,earningsTrend';
+
+async function _get(url, timeout=9000) {
+  const ctrl = new AbortController();
+  const tid = setTimeout(()=>ctrl.abort(), timeout);
+  try {
+    const r = await fetch(url, {signal: ctrl.signal});
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    return await r.json();
+  } finally { clearTimeout(tid); }
+}
+
+async function fetchCompany(sym) {
+  const enc = encodeURIComponent(sym);
+  const parse = d => d?.quoteSummary?.result?.[0] || null;
+
+  // 1. Vercel serverless function (with cache)
+  try {
+    const d = await _get(`/api/company?symbol=${enc}`);
+    if (d && !d.error) return d;
+  } catch(_) {}
+
+  // 2. Direct YF via corsproxy.io (residential IPs, not blocked)
+  const yfUrl1 = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${enc}?modules=${YF_MODULES}`;
+  try {
+    const d = await _get('https://corsproxy.io/?'+encodeURIComponent(yfUrl1));
+    const r = parse(d); if (r) return r;
+  } catch(_) {}
+
+  // 3. query2 via allorigins.win
+  const yfUrl2 = `https://query2.finance.yahoo.com/v10/finance/quoteSummary/${enc}?modules=${YF_MODULES}`;
+  const d = await _get('https://api.allorigins.win/raw?url='+encodeURIComponent(yfUrl2));
+  return parse(d) || {};
+}
+
+async function fetchHistory(sym) {
+  const enc = encodeURIComponent(sym);
+  const parse = d => {
+    const res = d?.chart?.result?.[0];
+    return { timestamps: res?.timestamp||[], prices: res?.indicators?.quote?.[0]?.close||[], currency: res?.meta?.currency||'' };
+  };
+  const path = `v8/finance/chart/${enc}?range=2y&interval=1mo&includePrePost=false`;
+
+  // 1. Vercel function
+  try {
+    const d = await _get(`/api/history?symbol=${enc}`);
+    if (d && d.timestamps) return d;
+  } catch(_) {}
+
+  // 2. corsproxy.io
+  try {
+    const d = await _get('https://corsproxy.io/?'+encodeURIComponent('https://query1.finance.yahoo.com/'+path));
+    const r = parse(d); if (r.timestamps.length) return r;
+  } catch(_) {}
+
+  // 3. allorigins
+  const d = await _get('https://api.allorigins.win/raw?url='+encodeURIComponent('https://query2.finance.yahoo.com/'+path));
+  return parse(d);
+}
+
 // ─── CHARGEMENT DETAIL ────────────────────────────────────────────────────────
 async function loadDetail(ticker){
   closeSearch();
   document.getElementById('home').style.display='none';
   const d=document.getElementById('detail');
   d.style.display='block';
-  d.style.removeProperty('background'); // toujours beige
   applyTheme(ticker);
   document.getElementById('detailContent').innerHTML=`<div class="loading"><span class="spinner"></span>Chargement des données…</div>`;
   Object.values(charts).forEach(c=>{try{c&&c.destroy();}catch(_){}});
   charts={price:null,revenue:null};
 
   try{
-    const[data,hist]=await Promise.all([
-      fetch(`/api/company?symbol=${encodeURIComponent(ticker)}`).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}),
-      fetch(`/api/history?symbol=${encodeURIComponent(ticker)}`).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}),
-    ]);
+    const[data,hist]=await Promise.all([fetchCompany(ticker), fetchHistory(ticker)]);
     state={ticker,data,hist};
     renderDetail();
   }catch(e){
@@ -578,8 +635,8 @@ async function loadDetail(ticker){
       <div class="error-box">
         <div style="font-size:36px;margin-bottom:16px">📡</div>
         <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Données temporairement indisponibles</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:28px;max-width:360px;margin-left:auto;margin-right:auto;line-height:1.6">
-          Yahoo Finance peut être momentanément inaccessible depuis le serveur.<br>Réessayez dans quelques secondes.
+        <div style="font-size:13px;color:var(--muted);margin-bottom:28px;max-width:380px;margin-left:auto;margin-right:auto;line-height:1.6">
+          Toutes les sources de données ont échoué. Vérifiez votre connexion ou réessayez dans quelques secondes.
         </div>
         <button class="retry-btn" onclick="loadDetail('${ticker}')">↻ Réessayer</button>
       </div>`;
