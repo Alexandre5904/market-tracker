@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Analyse Fondamentale</title>
+<title>Marchés Boursiers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -12,166 +12,181 @@
 :root{
   --bg:#F7F4EF;--surface:#fff;--border:#E2DDD6;
   --text:#1A1714;--muted:#7A7268;--faint:#B0A898;--blue:#2C4A7C;
+  --co-accent:#2C4A7C;
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
 /* ── HEADER ── */
-header{position:sticky;top:0;background:#ffffffee;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:54px;padding:0 28px;display:flex;align-items:center;gap:14px;z-index:200;transition:background .3s,border-color .3s}
-.brand{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--blue);letter-spacing:.3px;white-space:nowrap;transition:color .3s}
+header{position:sticky;top:0;background:#ffffffee;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:66px;padding:0 32px;display:flex;align-items:center;gap:16px;z-index:200}
+.brand{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--blue);letter-spacing:.3px;white-space:nowrap;font-weight:500}
 .mkt-pills{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
 .mkt-pills::-webkit-scrollbar{display:none}
-.pill{padding:4px 12px;border-radius:20px;border:1px solid var(--border);font-size:11px;font-weight:500;color:var(--muted);background:transparent;cursor:pointer;white-space:nowrap;transition:all .15s;font-family:inherit}
+.pill{padding:5px 14px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:500;color:var(--muted);background:transparent;cursor:pointer;white-space:nowrap;transition:all .15s;font-family:inherit}
 .pill:hover,.pill.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 .search-wrap{position:relative;margin-left:auto;flex-shrink:0}
-#searchBtn{display:flex;align-items:center;gap:6px;padding:6px 14px;background:#EBF0FA;border:1px solid #2C4A7C44;border-radius:20px;color:var(--blue);font-size:12px;cursor:pointer;font-family:inherit;font-weight:500}
-#searchBox{display:none;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--blue);border-radius:10px;padding:6px 14px;min-width:250px}
-#searchBox input{flex:1;background:transparent;border:none;outline:none;font-size:13px;color:var(--text);font-family:inherit}
-#searchBox button{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;line-height:1}
-#results{position:absolute;top:calc(100%+6px);right:0;width:300px;background:#fff;border:1px solid var(--border);border-radius:12px;display:none;overflow:hidden;box-shadow:0 8px 32px #00000014;z-index:300}
-.res-item{padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+#searchBtn{display:flex;align-items:center;gap:8px;padding:10px 22px;background:#EBF0FA;border:1px solid #2C4A7C44;border-radius:24px;color:var(--blue);font-size:14px;cursor:pointer;font-family:inherit;font-weight:500}
+#searchBox{display:none;align-items:center;gap:8px;background:#fff;border:2px solid var(--blue);border-radius:12px;padding:9px 18px;min-width:320px}
+#searchBox input{flex:1;background:transparent;border:none;outline:none;font-size:14px;color:var(--text);font-family:inherit}
+#searchBox button{background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;line-height:1}
+#results{position:absolute;top:calc(100%+8px);right:0;width:360px;background:#fff;border:1px solid var(--border);border-radius:14px;display:none;overflow:hidden;box-shadow:0 10px 40px #00000018;z-index:300}
+.res-item{padding:12px 16px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
 .res-item:last-child{border-bottom:none}
 .res-item:hover{background:#EBF0FA}
 .res-name{font-weight:600}.res-ticker{font-size:11px;color:var(--muted);margin-left:6px}
-.res-ex{font-size:10px;background:#EBF0FA;color:var(--blue);padding:2px 7px;border-radius:5px;font-weight:500}
+.res-ex{font-size:10px;background:#EBF0FA;color:var(--blue);padding:2px 8px;border-radius:5px;font-weight:500}
 
 /* ── HOME ── */
-#home main{max-width:1100px;margin:0 auto;padding:40px 28px}
-.hero{margin-bottom:44px}
-.hero h1{font-family:'Cormorant Garamond',serif;font-size:46px;font-weight:400;line-height:1.1}
-.hero p{font-size:13px;color:var(--muted);margin-top:8px}
-.mkt-section{margin-bottom:48px;scroll-margin-top:68px}
-.mkt-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}
-.mkt-label{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500}
+#home main{max-width:1140px;margin:0 auto;padding:48px 32px}
+.hero{margin-bottom:52px}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:62px;font-weight:400;line-height:1.05}
+.hero p{font-size:14px;color:var(--muted);margin-top:10px}
+.mkt-section{margin-bottom:52px;scroll-margin-top:80px}
+.mkt-head{display:flex;align-items:baseline;gap:16px;margin-bottom:20px}
+.mkt-label{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:500}
 .mkt-sub{font-size:11px;color:var(--faint)}
 .mkt-head::after{content:'';flex:1;height:1px;background:var(--border)}
 
 /* ── LOGO GRID ── */
 .logo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px}
 .logo-card{aspect-ratio:1;border-radius:16px;cursor:pointer;overflow:hidden;position:relative;border:1px solid var(--border);background:#fff;transition:transform .2s,box-shadow .2s}
-.logo-card:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 10px 32px rgba(0,0,0,.1);z-index:2}
+.logo-card:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 10px 32px rgba(0,0,0,.12);z-index:2}
 .logo-card img{width:56%;height:56%;object-fit:contain;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
-.logo-fb{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:rgba(255,255,255,.8);text-align:center;pointer-events:none;width:80%;line-height:1.4;display:none}
-.logo-tip{position:absolute;bottom:0;left:0;right:0;background:rgba(26,23,20,.82);backdrop-filter:blur(4px);padding:7px 8px;transform:translateY(100%);transition:transform .2s;text-align:center}
+.logo-fb{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:rgba(255,255,255,.85);text-align:center;pointer-events:none;width:80%;line-height:1.4;display:none}
+.logo-tip{position:absolute;bottom:0;left:0;right:0;background:rgba(26,23,20,.84);backdrop-filter:blur(4px);padding:7px 8px;transform:translateY(100%);transition:transform .2s;text-align:center}
 .logo-tip-name{font-size:10px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.logo-tip-cap{font-size:9px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.6);margin-top:2px}
+.logo-tip-cap{font-size:9px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.55);margin-top:2px}
 .logo-card:hover .logo-tip{transform:translateY(0)}
 
-/* ── SPINNER / LOADING ── */
-.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:currentColor;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+/* ── SPINNER ── */
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading{text-align:center;padding:60px 0;color:var(--faint)}
+.loading{text-align:center;padding:60px 0;color:var(--faint);font-size:14px}
 
-/* ── DETAIL PAGE ── */
-#detail{display:none;min-height:100vh}
-#detail .inner{max-width:960px;margin:0 auto;padding:28px 24px 80px}
-.back-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);font-size:12px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);margin-bottom:28px;transition:all .15s}
-.back-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+/* ── DETAIL PAGE — fond beige neutre, accent sur données & graphiques seulement ── */
+#detail{display:none;min-height:100vh;background:var(--bg)}
+#detail .inner{max-width:980px;margin:0 auto;padding:32px 28px 80px}
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:9px;border:1px solid var(--border);color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;background:var(--surface);margin-bottom:32px;transition:all .15s;font-weight:500}
+.back-btn:hover{background:var(--border);color:var(--text)}
 
 /* Hero block */
-.co-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px}
-.co-name-row{display:flex;align-items:center;gap:14px}
-.co-logo{width:60px;height:60px;border-radius:14px;object-fit:contain;background:rgba(255,255,255,.95);padding:8px;border:1px solid rgba(255,255,255,.2)}
-.co-logo-fb{width:60px;height:60px;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,.7)}
-.co-name{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;color:#fff;line-height:1.1}
-.co-meta{font-size:11px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace;margin-top:5px}
+.co-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:28px}
+.co-name-row{display:flex;align-items:center;gap:16px}
+.co-logo{width:64px;height:64px;border-radius:14px;object-fit:contain;background:#fff;padding:8px;border:1px solid var(--border)}
+.co-logo-fb{width:64px;height:64px;border-radius:14px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;color:var(--muted)}
+.co-name{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:400;color:var(--text);line-height:1.1}
+.co-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:5px}
 .co-price-block{text-align:right}
-.co-price{font-size:30px;font-weight:600;font-family:'DM Mono',monospace;color:#fff}
-.co-chg{font-size:14px;font-weight:500;margin-top:4px}
-.pos{color:#4ade80}.neg{color:#f87171}
+.co-price{font-size:32px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)}
+.co-chg{font-size:14px;font-weight:600;margin-top:4px}
+.pos{color:#16a34a}.neg{color:#dc2626}
+
+/* Accent bar under header */
+.co-accent-bar{height:3px;border-radius:2px;background:var(--co-accent);margin-bottom:24px;opacity:.7}
 
 /* KPI cards */
 .kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px}
-.kpi{border-radius:12px;padding:12px 14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05)}
-.kpi-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.35);margin-bottom:5px}
-.kpi-val{font-size:16px;font-weight:600;font-family:'DM Mono',monospace;color:#fff}
-.kpi-val.accent{color:var(--co-accent,#88aaff)}
+.kpi{border-radius:12px;padding:13px 14px;border:1px solid var(--border);background:var(--surface);border-top:3px solid var(--co-accent)}
+.kpi-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin-bottom:6px}
+.kpi-val{font-size:17px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)}
+.kpi-val.accent{color:var(--co-accent)}
 
 /* 52W range */
-.range-wrap{margin:8px 0 20px;display:flex;align-items:center;gap:10px;font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.4)}
-.range-track{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;position:relative}
-.range-fill{position:absolute;top:0;left:0;height:4px;background:linear-gradient(90deg,#f87171,#facc15,#4ade80);border-radius:2px}
-.range-cursor{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--co-accent,#88aaff);transform:translate(-50%,-50%)}
+.range-wrap{margin:8px 0 24px;display:flex;align-items:center;gap:10px;font-size:11px;font-family:'DM Mono',monospace;color:var(--muted)}
+.range-track{flex:1;height:5px;background:var(--border);border-radius:3px;position:relative}
+.range-fill{position:absolute;top:0;left:0;height:5px;background:linear-gradient(90deg,#f87171,#facc15,#4ade80);border-radius:3px}
+.range-cursor{position:absolute;top:50%;width:11px;height:11px;border-radius:50%;background:#fff;border:2px solid var(--co-accent);transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.2)}
 
 /* Section titles */
-.sec-title{display:flex;align-items:center;gap:14px;margin:32px 0 14px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.35)}
-.sec-title::before,.sec-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1)}
+.sec-title{display:flex;align-items:center;gap:14px;margin:36px 0 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--co-accent)}
+.sec-title::before,.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
 
 /* Cards */
-.card-d{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:14px}
+.card-d{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:14px}
 
 /* Description */
-.co-desc{font-size:13px;line-height:1.7;color:rgba(255,255,255,.55);max-height:4.8em;overflow:hidden;transition:max-height .4s;cursor:pointer}
+.co-desc{font-size:13px;line-height:1.75;color:var(--muted);max-height:4.8em;overflow:hidden;transition:max-height .4s;cursor:pointer}
 .co-desc.open{max-height:40em}
-.desc-more{font-size:11px;color:var(--co-accent,#88aaff);cursor:pointer;margin-top:6px;display:inline-block}
+.desc-more{font-size:11px;color:var(--co-accent);cursor:pointer;margin-top:6px;display:inline-block;font-weight:500}
 
 /* Tabs */
-.tabs{display:flex;gap:3px;background:rgba(255,255,255,.06);border-radius:9px;padding:3px}
-.tab-btn{padding:5px 12px;border-radius:7px;border:none;background:transparent;font-family:inherit;font-size:11px;cursor:pointer;color:rgba(255,255,255,.5);transition:all .15s}
-.tab-btn.on{background:var(--co-accent,#4466cc);color:#fff;font-weight:600}
+.tabs{display:flex;gap:3px;background:var(--bg);border-radius:10px;padding:3px;border:1px solid var(--border)}
+.tab-btn{padding:6px 14px;border-radius:8px;border:none;background:transparent;font-family:inherit;font-size:11px;cursor:pointer;color:var(--muted);transition:all .15s;font-weight:500}
+.tab-btn.on{background:var(--co-accent);color:#fff;font-weight:600}
 
 /* Tables */
 .tbl{width:100%;border-collapse:collapse;font-size:12px}
-.tbl th{text-align:right;padding:7px 10px;color:rgba(255,255,255,.3);font-weight:500;font-size:10px;border-bottom:1px solid rgba(255,255,255,.08);white-space:nowrap}
+.tbl th{text-align:right;padding:8px 10px;color:var(--faint);font-weight:600;font-size:10px;border-bottom:2px solid var(--border);white-space:nowrap;text-transform:uppercase;letter-spacing:.05em}
 .tbl th:first-child{text-align:left}
-.tbl td{padding:7px 10px;font-family:'DM Mono',monospace;text-align:right;color:rgba(255,255,255,.75)}
-.tbl td:first-child{text-align:left;color:rgba(255,255,255,.4);font-family:'DM Sans',sans-serif;font-size:11px}
-.tbl tr:nth-child(even){background:rgba(255,255,255,.02)}
-.tbl tr:hover{background:rgba(255,255,255,.05)}
-.row-list div{display:flex;justify-content:space-between;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
+.tbl td{padding:8px 10px;font-family:'DM Mono',monospace;text-align:right;color:var(--text)}
+.tbl td:first-child{text-align:left;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px}
+.tbl tr:nth-child(even){background:var(--bg)}
+.tbl tr:hover{background:#EBF0FA}
+.row-list div{display:flex;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px}
 .row-list div:last-child{border-bottom:none}
-.row-list .lbl{color:rgba(255,255,255,.4);font-size:11px}
-.row-list .val{font-family:'DM Mono',monospace;color:rgba(255,255,255,.8)}
-.row-list .bold .lbl,.row-list .bold .val{color:#fff;font-weight:600}
+.row-list .lbl{color:var(--muted);font-size:11px}
+.row-list .val{font-family:'DM Mono',monospace;color:var(--text)}
+.row-list .bold .lbl{color:var(--text);font-weight:600}
+.row-list .bold .val{color:var(--text);font-weight:700}
 
 /* Charts */
-.chart-wrap{position:relative;height:200px}
-.chart-wrap-lg{position:relative;height:240px}
+.chart-wrap{position:relative;height:210px}
+.chart-wrap-lg{position:relative;height:250px}
 
 /* Analyst bar */
-.rec-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin:12px 0 6px;gap:2px}
+.rec-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:12px 0 6px;gap:2px}
 .rec-seg{height:100%;border-radius:2px;transition:width .6s}
-.rec-labels{display:flex;justify-content:space-between;font-size:10px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.4);margin-top:4px}
-.rec-counts{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+.rec-labels{display:flex;justify-content:space-between;font-size:10px;font-family:'DM Mono',monospace;color:var(--faint);margin-top:4px}
+.rec-counts{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
 .rec-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;margin-top:2px}
-.rec-item{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:rgba(255,255,255,.5)}
-.rec-n{font-weight:600;color:rgba(255,255,255,.85)}
+.rec-item{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:var(--muted)}
+.rec-n{font-weight:700;color:var(--text)}
 
 /* Insights */
-.insight{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.04);margin-bottom:7px;font-size:13px;line-height:1.6;color:rgba(255,255,255,.8)}
-.insight-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.insight{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg);margin-bottom:8px;font-size:13px;line-height:1.65;color:var(--text)}
+.insight-icon{font-size:17px;flex-shrink:0;margin-top:1px}
 
 /* Target price */
-.target-block{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px}
-.target-item{text-align:center;padding:10px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04)}
-.target-label{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.35);margin-bottom:4px}
-.target-val{font-size:18px;font-weight:600;font-family:'DM Mono',monospace;color:#fff}
-.target-upside{font-size:11px;margin-top:3px}
+.target-block{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
+.target-item{text-align:center;padding:12px 18px;border-radius:12px;border:1px solid var(--border);background:var(--bg);min-width:90px}
+.target-label{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:5px}
+.target-val{font-size:19px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)}
+.target-upside{font-size:11px;margin-top:3px;font-weight:600}
 
 /* Key facts */
-.facts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
-.fact{display:flex;flex-direction:column;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03)}
-.fact-label{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.3);margin-bottom:4px}
-.fact-val{font-size:13px;font-weight:500;color:rgba(255,255,255,.8)}
+.facts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.fact{display:flex;flex-direction:column;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg)}
+.fact-label{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:4px}
+.fact-val{font-size:13px;font-weight:500;color:var(--text)}
+
+/* Error / retry */
+.error-box{padding:48px;text-align:center}
+.retry-btn{padding:10px 22px;background:var(--blue);color:#fff;border:none;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;transition:opacity .15s}
+.retry-btn:hover{opacity:.85}
 
 /* Responsive */
 @media(max-width:720px){
   .kpi-row{grid-template-columns:repeat(3,1fr)}
   .logo-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}
-  .co-name{font-size:24px}.co-price{font-size:22px}
-  .hero h1{font-size:32px}.facts-grid{grid-template-columns:1fr}
+  .co-name{font-size:26px}.co-price{font-size:24px}
+  .hero h1{font-size:40px}.facts-grid{grid-template-columns:1fr}
+  header{padding:0 18px;height:58px}
+  #searchBtn{padding:8px 14px;font-size:13px}
 }
-@media(max-width:420px){.mkt-pills{display:none}.kpi-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){
+  .mkt-pills{display:none}.kpi-row{grid-template-columns:repeat(2,1fr)}
+  .mkt-label{font-size:28px}.hero h1{font-size:34px}
+}
 </style>
 </head>
 <body>
 
 <header id="mainHeader">
-  <div class="brand">✦ Analyse Fondamentale</div>
+  <div class="brand">✦ Marchés Boursiers</div>
   <div class="mkt-pills" id="mktPills"></div>
   <div class="search-wrap">
-    <button id="searchBtn" onclick="openSearch()">⌕ Rechercher</button>
+    <button id="searchBtn" onclick="openSearch()">⌕ Rechercher une action</button>
     <div id="searchBox">
-      <span style="color:var(--muted)">⌕</span>
+      <span style="color:var(--muted);font-size:16px">⌕</span>
       <input id="searchInput" placeholder="Apple, LVMH, AAPL…" oninput="doSearch(this.value)" onkeydown="if(event.key==='Escape')closeSearch()"/>
       <button onclick="closeSearch()">✕</button>
     </div>
@@ -182,74 +197,163 @@ header{position:sticky;top:0;background:#ffffffee;backdrop-filter:blur(14px);-we
 <div id="home">
   <main>
     <div class="hero">
-      <h1>Marchés financiers</h1>
+      <h1>Marchés boursiers</h1>
       <p>Analyse fondamentale · Données Yahoo Finance · CAC 40 · S&amp;P 500 · DAX</p>
     </div>
-    <div id="markets"><div class="loading"><span class="spinner" style="color:var(--faint)"></span>Chargement…</div></div>
+    <div id="markets"><div class="loading"><span class="spinner"></span>Chargement…</div></div>
   </main>
 </div>
 
 <div id="detail">
   <div class="inner">
-    <button class="back-btn" onclick="showHome()">← Marchés</button>
+    <button class="back-btn" onclick="showHome()">← Retour aux marchés</button>
     <div id="detailContent"></div>
   </div>
 </div>
 
 <script>
-// ─── MARKETS & THEMES ─────────────────────────────────────────────────────────
-const MARKETS = {
-  "CAC 40":           ["MC.PA","TTE.PA","SAN.PA","BNP.PA","AIR.PA","OR.PA","SU.PA","RI.PA","DG.PA","KER.PA","BN.PA","ACA.PA","GLE.PA","RMS.PA","CS.PA","ORA.PA","CAP.PA","ML.PA","EN.PA"],
-  "S&P 500 — Tech":   ["AAPL","MSFT","NVDA","GOOGL","META","AMZN","AVGO","ORCL","AMD","TSM"],
-  "S&P 500 — Finance":["JPM","V","MA","BAC","WFC","GS","MS","BLK","AXP","C"],
-  "S&P 500 — Santé":  ["LLY","JNJ","UNH","ABBV","MRK","TMO","ABT","DHR","PFE","AMGN"],
-  "DAX":              ["SAP","SIE.DE","ALV.DE","MBG.DE","BMW.DE","DTE.DE","BAYN.DE","DBK.DE","BAS.DE","MUV2.DE"],
+// ─── DONNÉES STATIQUES ────────────────────────────────────────────────────────
+const COMPANIES = {
+  "CAC 40":[
+    {s:"MC.PA",n:"LVMH"},{s:"RMS.PA",n:"Hermès"},{s:"OR.PA",n:"L'Oréal"},
+    {s:"TTE.PA",n:"TotalEnergies"},{s:"AI.PA",n:"Air Liquide"},{s:"SAN.PA",n:"Sanofi"},
+    {s:"AIR.PA",n:"Airbus"},{s:"SU.PA",n:"Schneider Electric"},{s:"EL.PA",n:"EssilorLuxottica"},
+    {s:"BNP.PA",n:"BNP Paribas"},{s:"SAF.PA",n:"Safran"},{s:"CS.PA",n:"AXA"},
+    {s:"DG.PA",n:"Vinci"},{s:"DSY.PA",n:"Dassault Systèmes"},{s:"KER.PA",n:"Kering"},
+    {s:"HO.PA",n:"Thales"},{s:"SGO.PA",n:"Saint-Gobain"},{s:"LR.PA",n:"Legrand"},
+    {s:"PUB.PA",n:"Publicis Groupe"},{s:"RI.PA",n:"Pernod Ricard"},{s:"BN.PA",n:"Danone"},
+    {s:"ACA.PA",n:"Crédit Agricole"},{s:"GLE.PA",n:"Société Générale"},{s:"ORA.PA",n:"Orange"},
+    {s:"CAP.PA",n:"Capgemini"},{s:"ML.PA",n:"Michelin"},{s:"EN.PA",n:"Bouygues"},
+    {s:"RNO.PA",n:"Renault"},{s:"VIE.PA",n:"Veolia"},{s:"ENGI.PA",n:"Engie"},
+    {s:"STM",n:"STMicroelectronics"},{s:"STLA",n:"Stellantis"},{s:"AC.PA",n:"Accor"},
+    {s:"MT",n:"ArcelorMittal"},{s:"URW.PA",n:"Unibail-Rodamco"},
+  ],
+  "S&P 500 — Tech":[
+    {s:"AAPL",n:"Apple"},{s:"MSFT",n:"Microsoft"},{s:"NVDA",n:"NVIDIA"},
+    {s:"GOOGL",n:"Alphabet"},{s:"META",n:"Meta Platforms"},{s:"AMZN",n:"Amazon"},
+    {s:"AVGO",n:"Broadcom"},{s:"ORCL",n:"Oracle"},{s:"AMD",n:"AMD"},{s:"TSM",n:"TSMC"},
+    {s:"CRM",n:"Salesforce"},{s:"ADBE",n:"Adobe"},{s:"QCOM",n:"Qualcomm"},
+    {s:"TXN",n:"Texas Instruments"},{s:"INTC",n:"Intel"},
+  ],
+  "S&P 500 — Finance":[
+    {s:"JPM",n:"JPMorgan Chase"},{s:"V",n:"Visa"},{s:"MA",n:"Mastercard"},
+    {s:"BAC",n:"Bank of America"},{s:"WFC",n:"Wells Fargo"},{s:"GS",n:"Goldman Sachs"},
+    {s:"MS",n:"Morgan Stanley"},{s:"BLK",n:"BlackRock"},{s:"AXP",n:"American Express"},
+    {s:"C",n:"Citigroup"},{s:"SCHW",n:"Charles Schwab"},{s:"CB",n:"Chubb"},{s:"PGR",n:"Progressive"},
+  ],
+  "S&P 500 — Santé":[
+    {s:"LLY",n:"Eli Lilly"},{s:"JNJ",n:"Johnson & Johnson"},{s:"UNH",n:"UnitedHealth"},
+    {s:"ABBV",n:"AbbVie"},{s:"MRK",n:"Merck"},{s:"TMO",n:"Thermo Fisher"},
+    {s:"ABT",n:"Abbott"},{s:"DHR",n:"Danaher"},{s:"PFE",n:"Pfizer"},{s:"AMGN",n:"Amgen"},
+    {s:"BSX",n:"Boston Scientific"},{s:"ISRG",n:"Intuitive Surgical"},{s:"VRTX",n:"Vertex Pharma"},
+  ],
+  "S&P 500 — Industrie":[
+    {s:"CAT",n:"Caterpillar"},{s:"DE",n:"John Deere"},{s:"HON",n:"Honeywell"},
+    {s:"RTX",n:"RTX"},{s:"GE",n:"GE Aerospace"},{s:"UPS",n:"UPS"},
+    {s:"LMT",n:"Lockheed Martin"},{s:"NOC",n:"Northrop Grumman"},{s:"BA",n:"Boeing"},{s:"ETN",n:"Eaton"},
+  ],
+  "S&P 500 — Conso":[
+    {s:"WMT",n:"Walmart"},{s:"COST",n:"Costco"},{s:"MCD",n:"McDonald's"},
+    {s:"KO",n:"Coca-Cola"},{s:"PEP",n:"PepsiCo"},{s:"PG",n:"Procter & Gamble"},
+    {s:"NKE",n:"Nike"},{s:"SBUX",n:"Starbucks"},{s:"TGT",n:"Target"},{s:"PM",n:"Philip Morris"},
+  ],
+  "DAX":[
+    {s:"SAP",n:"SAP"},{s:"SIE.DE",n:"Siemens"},{s:"ALV.DE",n:"Allianz"},
+    {s:"RHM.DE",n:"Rheinmetall"},{s:"DTE.DE",n:"Deutsche Telekom"},{s:"MBG.DE",n:"Mercedes-Benz"},
+    {s:"BMW.DE",n:"BMW"},{s:"ENR.DE",n:"Siemens Energy"},{s:"MUV2.DE",n:"Munich Re"},
+    {s:"SHL.DE",n:"Siemens Healthineers"},{s:"ADS.DE",n:"Adidas"},{s:"IFX.DE",n:"Infineon"},
+    {s:"DHL.DE",n:"DHL Group"},{s:"MTX.DE",n:"MTU Aero Engines"},{s:"BAYN.DE",n:"Bayer"},
+    {s:"DBK.DE",n:"Deutsche Bank"},{s:"BAS.DE",n:"BASF"},{s:"VOW3.DE",n:"Volkswagen"},
+    {s:"HNR1.DE",n:"Hannover Re"},{s:"CBK.DE",n:"Commerzbank"},{s:"MRK.DE",n:"Merck KGaA"},
+    {s:"HEN3.DE",n:"Henkel"},{s:"RWE.DE",n:"RWE"},{s:"EOAN.DE",n:"E.ON"},
+    {s:"BEI.DE",n:"Beiersdorf"},{s:"CON.DE",n:"Continental"},{s:"ZAL.DE",n:"Zalando"},
+    {s:"SY1.DE",n:"Symrise"},{s:"VNA.DE",n:"Vonovia"},{s:"PAH3.DE",n:"Porsche"},
+  ],
 };
 
-// Clearbit logo domains (free, no API key)
+// Clearbit logo domains
 const DOMAINS = {
-  "MC.PA":"lvmh.com","TTE.PA":"totalenergies.com","SAN.PA":"sanofi.com","BNP.PA":"bnpparibas.com",
-  "AIR.PA":"airbus.com","OR.PA":"loreal.com","SU.PA":"se.com","RI.PA":"pernod-ricard.com",
-  "DG.PA":"vinci.com","KER.PA":"kering.com","BN.PA":"danone.com","ACA.PA":"credit-agricole.com",
-  "GLE.PA":"societegenerale.com","RMS.PA":"hermes.com","CS.PA":"axa.com","ORA.PA":"orange.com",
+  // CAC 40
+  "MC.PA":"lvmh.com","RMS.PA":"hermes.com","OR.PA":"loreal.com",
+  "TTE.PA":"totalenergies.com","AI.PA":"airliquide.com","SAN.PA":"sanofi.com",
+  "AIR.PA":"airbus.com","SU.PA":"se.com","EL.PA":"essilorluxottica.com",
+  "BNP.PA":"bnpparibas.com","SAF.PA":"safran.com","CS.PA":"axa.com",
+  "DG.PA":"vinci.com","DSY.PA":"3ds.com","KER.PA":"kering.com",
+  "HO.PA":"thalesgroup.com","SGO.PA":"saint-gobain.com","LR.PA":"legrand.com",
+  "PUB.PA":"publicisgroupe.com","RI.PA":"pernod-ricard.com","BN.PA":"danone.com",
+  "ACA.PA":"credit-agricole.com","GLE.PA":"societegenerale.com","ORA.PA":"orange.com",
   "CAP.PA":"capgemini.com","ML.PA":"michelin.com","EN.PA":"bouygues.com",
+  "RNO.PA":"renaultgroup.com","VIE.PA":"veolia.com","ENGI.PA":"engie.com",
+  "STM":"st.com","STLA":"stellantis.com","AC.PA":"accor.com",
+  "MT":"arcelormittal.com","URW.PA":"urw.com",
+  // S&P Tech
   "AAPL":"apple.com","MSFT":"microsoft.com","NVDA":"nvidia.com","GOOGL":"google.com",
   "META":"meta.com","AMZN":"amazon.com","AVGO":"broadcom.com","ORCL":"oracle.com",
-  "AMD":"amd.com","TSM":"tsmc.com",
+  "AMD":"amd.com","TSM":"tsmc.com","CRM":"salesforce.com","ADBE":"adobe.com",
+  "QCOM":"qualcomm.com","TXN":"ti.com","INTC":"intel.com",
+  // S&P Finance
   "JPM":"jpmorganchase.com","V":"visa.com","MA":"mastercard.com","BAC":"bankofamerica.com",
   "WFC":"wellsfargo.com","GS":"goldmansachs.com","MS":"morganstanley.com","BLK":"blackrock.com",
-  "AXP":"americanexpress.com","C":"citi.com",
+  "AXP":"americanexpress.com","C":"citi.com","SCHW":"schwab.com","CB":"chubb.com","PGR":"progressive.com",
+  // S&P Santé
   "LLY":"lilly.com","JNJ":"jnj.com","UNH":"unitedhealthgroup.com","ABBV":"abbvie.com",
   "MRK":"merck.com","TMO":"thermofisher.com","ABT":"abbott.com","DHR":"danaher.com",
-  "PFE":"pfizer.com","AMGN":"amgen.com",
-  "SAP":"sap.com","SIE.DE":"siemens.com","ALV.DE":"allianz.com","MBG.DE":"mercedes-benz.com",
-  "BMW.DE":"bmw.com","DTE.DE":"telekom.com","BAYN.DE":"bayer.com","DBK.DE":"db.com",
-  "BAS.DE":"basf.com","MUV2.DE":"munichre.com",
+  "PFE":"pfizer.com","AMGN":"amgen.com","BSX":"bostonscientific.com",
+  "ISRG":"intuitivesurgical.com","VRTX":"vrtx.com",
+  // S&P Industrie
+  "CAT":"caterpillar.com","DE":"deere.com","HON":"honeywell.com","RTX":"rtx.com",
+  "GE":"ge.com","UPS":"ups.com","LMT":"lockheedmartin.com","NOC":"northropgrumman.com",
+  "BA":"boeing.com","ETN":"eaton.com",
+  // S&P Conso
+  "WMT":"walmart.com","COST":"costco.com","MCD":"mcdonalds.com","KO":"coca-cola.com",
+  "PEP":"pepsico.com","PG":"pg.com","NKE":"nike.com","SBUX":"starbucks.com",
+  "TGT":"target.com","PM":"pmi.com",
+  // DAX
+  "SAP":"sap.com","SIE.DE":"siemens.com","ALV.DE":"allianz.com","RHM.DE":"rheinmetall.com",
+  "DTE.DE":"telekom.com","MBG.DE":"mercedes-benz.com","BMW.DE":"bmw.com",
+  "ENR.DE":"siemens-energy.com","MUV2.DE":"munichre.com","SHL.DE":"siemens-healthineers.com",
+  "ADS.DE":"adidas.com","IFX.DE":"infineon.com","DHL.DE":"dhl.com","MTX.DE":"mtu.de",
+  "BAYN.DE":"bayer.com","DBK.DE":"db.com","BAS.DE":"basf.com","VOW3.DE":"volkswagenag.com",
+  "HNR1.DE":"hannover-re.com","CBK.DE":"commerzbank.com","MRK.DE":"merckgroup.com",
+  "HEN3.DE":"henkel.com","RWE.DE":"rwe.com","EOAN.DE":"eon.com","BEI.DE":"beiersdorf.com",
+  "CON.DE":"continental.com","ZAL.DE":"zalando.de","SY1.DE":"symrise.com",
+  "VNA.DE":"vonovia.de","PAH3.DE":"porsche.com",
 };
 
-// Brand-driven dark color palettes for the detail page
+// Accent couleur marque — bg utilisé uniquement pour les cartes logos
 const THEMES = {
-  AAPL:{bg:"#000000",accent:"#e8e8ed",card:"#1c1c1e"},
-  MSFT:{bg:"#001428",accent:"#50bfff",card:"#001e38"},
+  // S&P Tech
+  AAPL:{bg:"#0a0a0a",accent:"#555555",card:"#111"},
+  MSFT:{bg:"#001428",accent:"#0078d4",card:"#001e38"},
   NVDA:{bg:"#061a00",accent:"#76b900",card:"#0a2200"},
   GOOGL:{bg:"#081028",accent:"#4285f4",card:"#0e1a3e"},
   META:{bg:"#0a1428",accent:"#0866ff",card:"#0e1e3c"},
   AMZN:{bg:"#0c0e14",accent:"#ff9900",card:"#141820"},
-  AVGO:{bg:"#1a0000",accent:"#e05040",card:"#220000"},
+  AVGO:{bg:"#1a0000",accent:"#cc3333",card:"#220000"},
   ORCL:{bg:"#180500",accent:"#f05030",card:"#220800"},
-  AMD:{bg:"#100000",accent:"#ff2020",card:"#180000"},
+  AMD:{bg:"#100000",accent:"#ed1c24",card:"#180000"},
   TSM:{bg:"#001030",accent:"#3b7fdf",card:"#001840"},
-  JPM:{bg:"#000c1e",accent:"#2e7fd8",card:"#001028"},
-  V:{bg:"#06082a",accent:"#f7b600",card:"#0c1036"},
+  CRM:{bg:"#001020",accent:"#00a1e0",card:"#001830"},
+  ADBE:{bg:"#140000",accent:"#ff0000",card:"#1e0000"},
+  QCOM:{bg:"#0a0a14",accent:"#3253dc",card:"#10101e"},
+  TXN:{bg:"#0a0808",accent:"#c8102e",card:"#140c0c"},
+  INTC:{bg:"#001028",accent:"#0068b5",card:"#001838"},
+  // S&P Finance
+  JPM:{bg:"#000c1e",accent:"#005eb8",card:"#001028"},
+  V:{bg:"#06082a",accent:"#1a1f71",card:"#0c1036"},
   MA:{bg:"#180000",accent:"#eb001b",card:"#220000"},
   BAC:{bg:"#000a20",accent:"#e31837",card:"#00112e"},
   WFC:{bg:"#180000",accent:"#d71e2b",card:"#220000"},
-  GS:{bg:"#0a0a0a",accent:"#8ab4cc",card:"#141414"},
+  GS:{bg:"#0a0a0a",accent:"#7399c6",card:"#141414"},
   MS:{bg:"#000c22",accent:"#0062a8",card:"#001030"},
   BLK:{bg:"#080808",accent:"#d4a839",card:"#101010"},
   AXP:{bg:"#001828",accent:"#007bc0",card:"#002038"},
   C:{bg:"#00081a",accent:"#1a6ab5",card:"#001024"},
-  LLY:{bg:"#180000",accent:"#e03020",card:"#220000"},
+  SCHW:{bg:"#001020",accent:"#00a0df",card:"#001830"},
+  CB:{bg:"#000c1e",accent:"#005eb8",card:"#001028"},
+  PGR:{bg:"#100800",accent:"#0066b2",card:"#180e00"},
+  // S&P Santé
+  LLY:{bg:"#180000",accent:"#d7002a",card:"#220000"},
   JNJ:{bg:"#0e0000",accent:"#cc0000",card:"#160000"},
   UNH:{bg:"#001020",accent:"#316bbf",card:"#001830"},
   ABBV:{bg:"#00001a",accent:"#5566cc",card:"#000826"},
@@ -259,40 +363,103 @@ const THEMES = {
   DHR:{bg:"#001828",accent:"#0076ce",card:"#002038"},
   PFE:{bg:"#001828",accent:"#0093c8",card:"#002038"},
   AMGN:{bg:"#001020",accent:"#00539b",card:"#001830"},
-  "MC.PA":{bg:"#100e00",accent:"#d4a84b",card:"#181400"},
-  "TTE.PA":{bg:"#1a0000",accent:"#e81930",card:"#220000"},
-  "SAN.PA":{bg:"#180028",accent:"#9940c0",card:"#200030"},
-  "BNP.PA":{bg:"#001a08",accent:"#009a44",card:"#002010"},
-  "AIR.PA":{bg:"#000a1e",accent:"#0055cc",card:"#001030"},
+  BSX:{bg:"#001020",accent:"#008abf",card:"#001830"},
+  ISRG:{bg:"#001828",accent:"#00a6b5",card:"#002038"},
+  VRTX:{bg:"#001428",accent:"#6e3fa3",card:"#001e38"},
+  // S&P Industrie
+  CAT:{bg:"#100800",accent:"#ffcd11",card:"#180e00"},
+  DE:{bg:"#001400",accent:"#367c2b",card:"#001e00"},
+  HON:{bg:"#100000",accent:"#e30615",card:"#180000"},
+  RTX:{bg:"#000c22",accent:"#0047ba",card:"#001030"},
+  GE:{bg:"#001020",accent:"#1b6299",card:"#001830"},
+  UPS:{bg:"#120600",accent:"#351c15",card:"#1a0a00"},
+  LMT:{bg:"#000c22",accent:"#1d3461",card:"#001030"},
+  NOC:{bg:"#000c22",accent:"#003087",card:"#001030"},
+  BA:{bg:"#000c22",accent:"#1546a0",card:"#001030"},
+  ETN:{bg:"#100000",accent:"#d4292b",card:"#180000"},
+  // S&P Conso
+  WMT:{bg:"#001428",accent:"#0071ce",card:"#001e38"},
+  COST:{bg:"#100000",accent:"#e31837",card:"#180000"},
+  MCD:{bg:"#100800",accent:"#ffc72c",card:"#180e00"},
+  KO:{bg:"#140000",accent:"#f40009",card:"#1e0000"},
+  PEP:{bg:"#000c22",accent:"#004b93",card:"#001030"},
+  PG:{bg:"#000c22",accent:"#003da5",card:"#001030"},
+  NKE:{bg:"#080808",accent:"#f15a24",card:"#101010"},
+  SBUX:{bg:"#001400",accent:"#00704a",card:"#001e00"},
+  TGT:{bg:"#140000",accent:"#cc0000",card:"#1e0000"},
+  PM:{bg:"#140000",accent:"#c8102e",card:"#1e0000"},
+  // CAC 40
+  "MC.PA":{bg:"#100e00",accent:"#c8982a",card:"#181400"},
+  "RMS.PA":{bg:"#100800",accent:"#c87040",card:"#180e00"},
   "OR.PA":{bg:"#120f00",accent:"#c8a050",card:"#1a1400"},
+  "TTE.PA":{bg:"#1a0000",accent:"#e81930",card:"#220000"},
+  "AI.PA":{bg:"#001428",accent:"#3a8cc4",card:"#001e38"},
+  "SAN.PA":{bg:"#180028",accent:"#9940c0",card:"#200030"},
+  "AIR.PA":{bg:"#000a1e",accent:"#0055cc",card:"#001030"},
   "SU.PA":{bg:"#001a00",accent:"#3dcd58",card:"#002200"},
-  "RI.PA":{bg:"#100800",accent:"#c07030",card:"#180e00"},
+  "EL.PA":{bg:"#080808",accent:"#8a7f6f",card:"#101010"},
+  "BNP.PA":{bg:"#001a08",accent:"#009a44",card:"#002010"},
+  "SAF.PA":{bg:"#000a1e",accent:"#006bb0",card:"#001030"},
+  "CS.PA":{bg:"#00001c",accent:"#00008f",card:"#000828"},
   "DG.PA":{bg:"#100a00",accent:"#f5a623",card:"#181400"},
+  "DSY.PA":{bg:"#000a1e",accent:"#005386",card:"#001030"},
   "KER.PA":{bg:"#0c0800",accent:"#c89040",card:"#140e00"},
+  "HO.PA":{bg:"#00101a",accent:"#00a19a",card:"#001828"},
+  "SGO.PA":{bg:"#140000",accent:"#e05020",card:"#1e0000"},
+  "LR.PA":{bg:"#120800",accent:"#f97316",card:"#1a0e00"},
+  "PUB.PA":{bg:"#001028",accent:"#1e90ff",card:"#001838"},
+  "RI.PA":{bg:"#100800",accent:"#c07030",card:"#180e00"},
   "BN.PA":{bg:"#001028",accent:"#0074c8",card:"#001830"},
   "ACA.PA":{bg:"#001a08",accent:"#007947",card:"#002010"},
   "GLE.PA":{bg:"#180000",accent:"#e3000f",card:"#220000"},
-  "RMS.PA":{bg:"#100800",accent:"#c87040",card:"#180e00"},
-  "CS.PA":{bg:"#00001c",accent:"#3333cc",card:"#000828"},
   "ORA.PA":{bg:"#1a0800",accent:"#ff7900",card:"#221000"},
   "CAP.PA":{bg:"#001020",accent:"#0070ad",card:"#001830"},
   "ML.PA":{bg:"#180000",accent:"#e4002b",card:"#220000"},
   "EN.PA":{bg:"#000a1e",accent:"#0046be",card:"#001028"},
+  "RNO.PA":{bg:"#100c00",accent:"#f2c40c",card:"#181200"},
+  "VIE.PA":{bg:"#001400",accent:"#00a651",card:"#001e00"},
+  "ENGI.PA":{bg:"#001428",accent:"#00a3e0",card:"#001e38"},
+  "STM":{bg:"#001028",accent:"#0082ca",card:"#001838"},
+  "STLA":{bg:"#100000",accent:"#82112a",card:"#180000"},
+  "AC.PA":{bg:"#100c00",accent:"#b5974a",card:"#181200"},
+  "MT":{bg:"#140000",accent:"#cc0000",card:"#1e0000"},
+  "URW.PA":{bg:"#0a0a14",accent:"#8060c0",card:"#10101e"},
+  // DAX
   SAP:{bg:"#001828",accent:"#0077b9",card:"#002038"},
-  "SIE.DE":{bg:"#001818",accent:"#00b0b0",card:"#002020"},
+  "SIE.DE":{bg:"#001818",accent:"#009999",card:"#002020"},
   "ALV.DE":{bg:"#000c22",accent:"#1a4fa0",card:"#001030"},
-  "MBG.DE":{bg:"#0a0a0a",accent:"#c0c0c0",card:"#141414"},
-  "BMW.DE":{bg:"#001030",accent:"#1c69d4",card:"#001840"},
+  "RHM.DE":{bg:"#140000",accent:"#a00000",card:"#1e0000"},
   "DTE.DE":{bg:"#1a0010",accent:"#e20074",card:"#240018"},
+  "MBG.DE":{bg:"#0a0a0a",accent:"#909090",card:"#141414"},
+  "BMW.DE":{bg:"#001030",accent:"#1c69d4",card:"#001840"},
+  "ENR.DE":{bg:"#001400",accent:"#1b9639",card:"#001e00"},
+  "MUV2.DE":{bg:"#000c22",accent:"#1a4fa0",card:"#001030"},
+  "SHL.DE":{bg:"#001828",accent:"#00beaa",card:"#002038"},
+  "ADS.DE":{bg:"#080808",accent:"#1a1a1a",card:"#101010"},
+  "IFX.DE":{bg:"#001828",accent:"#00a3e0",card:"#002038"},
+  "DHL.DE":{bg:"#100800",accent:"#ffcc00",card:"#180e00"},
+  "MTX.DE":{bg:"#000c22",accent:"#003865",card:"#001030"},
   "BAYN.DE":{bg:"#001030",accent:"#10a0d3",card:"#001840"},
   "DBK.DE":{bg:"#000c20",accent:"#0060cc",card:"#001028"},
   "BAS.DE":{bg:"#001028",accent:"#004f9f",card:"#001838"},
-  "MUV2.DE":{bg:"#000c22",accent:"#1a4fa0",card:"#001030"},
+  "VOW3.DE":{bg:"#000c22",accent:"#1b3a6b",card:"#001030"},
+  "HNR1.DE":{bg:"#000c22",accent:"#003768",card:"#001030"},
+  "CBK.DE":{bg:"#100c00",accent:"#ffe000",card:"#181200"},
+  "MRK.DE":{bg:"#100020",accent:"#b02060",card:"#180030"},
+  "HEN3.DE":{bg:"#140000",accent:"#e21d2b",card:"#1e0000"},
+  "RWE.DE":{bg:"#140000",accent:"#e20000",card:"#1e0000"},
+  "EOAN.DE":{bg:"#140000",accent:"#ea1a28",card:"#1e0000"},
+  "BEI.DE":{bg:"#001028",accent:"#005ca9",card:"#001838"},
+  "CON.DE":{bg:"#100800",accent:"#f9a800",card:"#180e00"},
+  "ZAL.DE":{bg:"#140800",accent:"#ff6900",card:"#1e0e00"},
+  "SY1.DE":{bg:"#001400",accent:"#007a3d",card:"#001e00"},
+  "VNA.DE":{bg:"#120800",accent:"#ea552b",card:"#1a0e00"},
+  "PAH3.DE":{bg:"#080808",accent:"#c0392b",card:"#101010"},
   _:{bg:"#0a0a14",accent:"#5577cc",card:"#10101e"},
 };
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
-const R  = o => o?.raw ?? null;          // extract .raw from Yahoo Finance format
+const R  = o => o?.raw ?? null;
 const Rf = o => o?.raw ?? 0;
 const logoUrl = s => DOMAINS[s] ? `https://logo.clearbit.com/${DOMAINS[s]}` : null;
 
@@ -307,12 +474,14 @@ const fmt = (n,d=1) => {
 const fmtP  = n => n==null||isNaN(n)?'—':(n*100).toFixed(1)+'%';
 const fmtR  = (n,d=2) => n==null||isNaN(n)?'—':(+n).toFixed(d);
 const fmtTs = ts => ts ? new Date(ts*1000).toISOString().slice(0,7) : '—';
+const fmtTsY= ts => ts ? new Date(ts*1000).getFullYear().toString() : '—';
+const clr   = (v,pos='#16a34a',neg='#dc2626') => v!=null&&v>=0?pos:neg;
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 let state = {};
 let charts = { price: null, revenue: null };
 
-// ─── SEARCH ───────────────────────────────────────────────────────────────────
+// ─── RECHERCHE ────────────────────────────────────────────────────────────────
 let sTimer;
 function openSearch(){
   document.getElementById('searchBtn').style.display='none';
@@ -341,39 +510,7 @@ function doSearch(q){
   },320);
 }
 
-// ─── COMPANIES (static — no API needed for homepage) ─────────────────────────
-const COMPANIES = {
-  "CAC 40":[
-    {s:"MC.PA",n:"LVMH"},{s:"RMS.PA",n:"Hermès"},{s:"OR.PA",n:"L'Oréal"},
-    {s:"TTE.PA",n:"TotalEnergies"},{s:"SAN.PA",n:"Sanofi"},{s:"AIR.PA",n:"Airbus"},
-    {s:"SU.PA",n:"Schneider Electric"},{s:"BNP.PA",n:"BNP Paribas"},{s:"CS.PA",n:"AXA"},
-    {s:"DG.PA",n:"Vinci"},{s:"KER.PA",n:"Kering"},{s:"RI.PA",n:"Pernod Ricard"},
-    {s:"BN.PA",n:"Danone"},{s:"ACA.PA",n:"Crédit Agricole"},{s:"GLE.PA",n:"Société Générale"},
-    {s:"ORA.PA",n:"Orange"},{s:"CAP.PA",n:"Capgemini"},{s:"ML.PA",n:"Michelin"},{s:"EN.PA",n:"Bouygues"},
-  ],
-  "S&P 500 — Tech":[
-    {s:"AAPL",n:"Apple"},{s:"MSFT",n:"Microsoft"},{s:"NVDA",n:"NVIDIA"},
-    {s:"GOOGL",n:"Alphabet"},{s:"META",n:"Meta Platforms"},{s:"AMZN",n:"Amazon"},
-    {s:"AVGO",n:"Broadcom"},{s:"ORCL",n:"Oracle"},{s:"AMD",n:"AMD"},{s:"TSM",n:"TSMC"},
-  ],
-  "S&P 500 — Finance":[
-    {s:"JPM",n:"JPMorgan Chase"},{s:"V",n:"Visa"},{s:"MA",n:"Mastercard"},
-    {s:"BAC",n:"Bank of America"},{s:"WFC",n:"Wells Fargo"},{s:"GS",n:"Goldman Sachs"},
-    {s:"MS",n:"Morgan Stanley"},{s:"BLK",n:"BlackRock"},{s:"AXP",n:"American Express"},{s:"C",n:"Citigroup"},
-  ],
-  "S&P 500 — Santé":[
-    {s:"LLY",n:"Eli Lilly"},{s:"JNJ",n:"Johnson & Johnson"},{s:"UNH",n:"UnitedHealth"},
-    {s:"ABBV",n:"AbbVie"},{s:"MRK",n:"Merck"},{s:"TMO",n:"Thermo Fisher"},
-    {s:"ABT",n:"Abbott"},{s:"DHR",n:"Danaher"},{s:"PFE",n:"Pfizer"},{s:"AMGN",n:"Amgen"},
-  ],
-  "DAX":[
-    {s:"SAP",n:"SAP"},{s:"SIE.DE",n:"Siemens"},{s:"ALV.DE",n:"Allianz"},
-    {s:"MBG.DE",n:"Mercedes-Benz"},{s:"BMW.DE",n:"BMW"},{s:"DTE.DE",n:"Deutsche Telekom"},
-    {s:"BAYN.DE",n:"Bayer"},{s:"DBK.DE",n:"Deutsche Bank"},{s:"BAS.DE",n:"BASF"},{s:"MUV2.DE",n:"Munich Re"},
-  ],
-};
-
-// ─── HOMEPAGE ─────────────────────────────────────────────────────────────────
+// ─── HOMEPAGE (100% statique) ─────────────────────────────────────────────────
 function loadHome(){
   const marketsEl=document.getElementById('markets');
   const pillsEl=document.getElementById('mktPills');
@@ -390,12 +527,12 @@ function loadHome(){
         ${companies.map(co=>{
           const t=THEMES[co.s]||THEMES._;
           const logo=logoUrl(co.s);
-          return`<div class="logo-card" style="background:${t.bg};border-color:${t.accent}33" onclick="loadDetail('${co.s}')">
+          return`<div class="logo-card" style="background:${t.bg};border-color:${t.accent}44" onclick="loadDetail('${co.s}')">
             ${logo?`<img src="${logo}" alt="${co.s}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>`:''}
             <div class="logo-fb" style="${logo?'':'display:block'}">${co.s}</div>
             <div class="logo-tip">
               <div class="logo-tip-name">${co.n}</div>
-              <div class="logo-tip-cap">Cliquer pour analyser</div>
+              <div class="logo-tip-cap">Analyser →</div>
             </div>
           </div>`;
         }).join('')}
@@ -409,56 +546,43 @@ function loadHome(){
 function showHome(){
   document.getElementById('home').style.display='block';
   document.getElementById('detail').style.cssText='display:none';
-  const h=document.getElementById('mainHeader');
-  h.style.background='';h.style.borderBottomColor='';
-  h.querySelector('.brand').style.color='';
 }
 
 function applyTheme(ticker){
   const t=THEMES[ticker]||THEMES._;
-  const d=document.getElementById('detail');
-  d.style.background=t.bg;
-  d.style.setProperty('--co-accent',t.accent);
-  const h=document.getElementById('mainHeader');
-  h.style.background=t.bg+'ee';
-  h.style.borderBottomColor='rgba(255,255,255,.08)';
-  h.querySelector('.brand').style.color=t.accent;
+  // Accent uniquement — fond beige conservé
+  document.getElementById('detail').style.setProperty('--co-accent',t.accent);
 }
 
-// ─── LOAD DETAIL ──────────────────────────────────────────────────────────────
+// ─── CHARGEMENT DETAIL ────────────────────────────────────────────────────────
 async function loadDetail(ticker){
   closeSearch();
   document.getElementById('home').style.display='none';
   const d=document.getElementById('detail');
   d.style.display='block';
+  d.style.removeProperty('background'); // toujours beige
   applyTheme(ticker);
-  document.getElementById('detailContent').innerHTML=`<div class="loading" style="color:rgba(255,255,255,.4)"><span class="spinner"></span>Chargement…</div>`;
+  document.getElementById('detailContent').innerHTML=`<div class="loading"><span class="spinner"></span>Chargement des données…</div>`;
   Object.values(charts).forEach(c=>{try{c&&c.destroy();}catch(_){}});
   charts={price:null,revenue:null};
 
-  const apiFetch = async (path) => {
-    // Try Vercel function first, then CORS proxy fallback
-    try {
-      const r = await fetch(path);
-      if (!r.ok) throw new Error('status '+r.status);
-      return r.json();
-    } catch(_) {
-      const base = 'https://api.allorigins.win/raw?url=';
-      const r2 = await fetch(base + encodeURIComponent('https://'+location.host+path));
-      if (!r2.ok) throw new Error('proxy failed');
-      return r2.json();
-    }
-  };
-
   try{
     const[data,hist]=await Promise.all([
-      apiFetch(`/api/company?symbol=${ticker}`),
-      apiFetch(`/api/history?symbol=${ticker}`),
+      fetch(`/api/company?symbol=${encodeURIComponent(ticker)}`).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}),
+      fetch(`/api/history?symbol=${encodeURIComponent(ticker)}`).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}),
     ]);
     state={ticker,data,hist};
     renderDetail();
   }catch(e){
-    document.getElementById('detailContent').innerHTML=`<div style="color:#f87171;padding:20px;font-size:13px">Erreur de chargement : ${e.message}<br><br><small style="color:rgba(255,255,255,.3)">Les données Yahoo Finance peuvent être temporairement indisponibles. Réessayez dans quelques instants.</small></div>`;
+    document.getElementById('detailContent').innerHTML=`
+      <div class="error-box">
+        <div style="font-size:36px;margin-bottom:16px">📡</div>
+        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Données temporairement indisponibles</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:28px;max-width:360px;margin-left:auto;margin-right:auto;line-height:1.6">
+          Yahoo Finance peut être momentanément inaccessible depuis le serveur.<br>Réessayez dans quelques secondes.
+        </div>
+        <button class="retry-btn" onclick="loadDetail('${ticker}')">↻ Réessayer</button>
+      </div>`;
   }
 }
 
@@ -466,7 +590,7 @@ async function loadDetail(ticker){
 function renderDetail(){
   const{ticker,data,hist}=state;
   if(!data||data.error){
-    document.getElementById('detailContent').innerHTML=`<div style="color:#f87171;padding:20px">Données non disponibles pour ${ticker}</div>`;
+    document.getElementById('detailContent').innerHTML=`<div style="color:#dc2626;padding:24px;font-size:14px">Données non disponibles pour ${ticker}</div>`;
     return;
   }
 
@@ -477,15 +601,12 @@ function renderDetail(){
   const ks=data.defaultKeyStatistics||{};
   const fd=data.financialData||{};
   const rt=data.recommendationTrend?.trend?.[0]||{};
-  const et=data.earningsTrend?.trend||[];
 
-  // Core price data
   const curPrice=R(price.regularMarketPrice);
   const chgPct=(R(price.regularMarketChangePercent)||0)*100;
   const mktCap=R(price.marketCap);
   const cur=price.currency||'';
 
-  // KPIs
   const pe=R(ks.trailingPE);
   const fpe=R(ks.forwardPE);
   const beta=R(sd.beta)||R(ks.beta);
@@ -493,33 +614,44 @@ function renderDetail(){
   const gm=R(fd.grossMargins);
   const roe=R(fd.returnOnEquity);
 
-  // 52-week range
   const w52lo=R(sd.fiftyTwoWeekLow),w52hi=R(sd.fiftyTwoWeekHigh);
   const rangePos=w52lo&&w52hi&&curPrice?Math.max(0,Math.min(100,(curPrice-w52lo)/(w52hi-w52lo)*100)):null;
 
-  // Analyst data
   const totalRec=(rt.strongBuy||0)+(rt.buy||0)+(rt.hold||0)+(rt.sell||0)+(rt.strongSell||0);
-  const bullPct=totalRec?(((rt.strongBuy||0)+(rt.buy||0))/totalRec*100):null;
   const tgtMean=R(fd.targetMeanPrice),tgtHi=R(fd.targetHighPrice),tgtLo=R(fd.targetLowPrice);
   const upside=curPrice&&tgtMean?((tgtMean-curPrice)/curPrice*100):null;
 
-  // Quarterly income
+  // Résultats trimestriels
   const qInc=data.incomeStatementHistoryQuarterly?.incomeStatementHistory||[];
   const incRows=qInc.slice(0,6).map(q=>{
     const rev=R(q.totalRevenue),gp=R(q.grossProfit),ni=R(q.netIncome),ebitda=R(q.ebitda);
-    const gMargin=rev&&gp!=null?gp/rev:null;
-    const nMargin=rev&&ni!=null?ni/rev:null;
+    const gM=rev&&gp!=null?gp/rev:null,nM=rev&&ni!=null?ni/rev:null;
     return`<tr>
       <td>${fmtTs(R(q.endDate))}</td>
       <td>${fmt(rev)}</td>
-      <td style="color:${th.accent}">${gMargin!=null?(gMargin*100).toFixed(1)+'%':'—'}</td>
+      <td style="color:var(--co-accent)">${gM!=null?(gM*100).toFixed(1)+'%':'—'}</td>
       <td>${fmt(ebitda)}</td>
-      <td style="color:${ni!=null&&ni>=0?'#4ade80':'#f87171'}">${fmt(ni)}</td>
-      <td style="color:${th.accent}">${nMargin!=null?(nMargin*100).toFixed(1)+'%':'—'}</td>
+      <td style="color:${clr(ni)}">${fmt(ni)}</td>
+      <td style="color:var(--co-accent)">${nM!=null?(nM*100).toFixed(1)+'%':'—'}</td>
     </tr>`;
   }).join('');
 
-  // Balance sheet
+  // Résultats annuels (3 dernières années)
+  const annInc=data.incomeStatementHistory?.incomeStatementHistory||[];
+  const annRows=annInc.slice(0,4).map(q=>{
+    const rev=R(q.totalRevenue),gp=R(q.grossProfit),ni=R(q.netIncome),ebitda=R(q.ebitda);
+    const gM=rev&&gp!=null?gp/rev:null,nM=rev&&ni!=null?ni/rev:null;
+    return`<tr>
+      <td>${fmtTsY(R(q.endDate))}</td>
+      <td>${fmt(rev)}</td>
+      <td style="color:var(--co-accent)">${gM!=null?(gM*100).toFixed(1)+'%':'—'}</td>
+      <td>${fmt(ebitda)}</td>
+      <td style="color:${clr(ni)}">${fmt(ni)}</td>
+      <td style="color:var(--co-accent)">${nM!=null?(nM*100).toFixed(1)+'%':'—'}</td>
+    </tr>`;
+  }).join('');
+
+  // Bilan (trimestre le plus récent)
   const qBal=data.balanceSheetHistoryQuarterly?.balanceSheetStatements||[];
   const b=qBal[0]||{};
   const balRows=[
@@ -532,7 +664,7 @@ function renderDetail(){
     ['Dettes long terme',R(b.longTermDebt),false],
     ['Total dettes',R(b.totalLiab),true],
     ['Capitaux propres',R(b.totalStockholderEquity),true],
-  ].map(([l,v,bold])=>l?`<div class="${bold?'bold':''}"><span class="lbl">${l}</span><span class="val" style="color:${bold?'#fff':'rgba(255,255,255,.75)'}">${fmt(v)}</span></div>`:'<div style="height:4px"></div>').join('');
+  ].map(([l,v,bold])=>l?`<div class="${bold?'bold':''}"><span class="lbl">${l}</span><span class="val">${fmt(v)}</span></div>`:'<div style="height:4px"></div>').join('');
 
   // Cash flow
   const qCF=data.cashflowStatementHistoryQuarterly?.cashflowStatements||[];
@@ -546,27 +678,26 @@ function renderDetail(){
     ['Investissements (Capex)',R(c.capitalExpenditures),false],
     ['Free Cash Flow',fcf,true],
     ['Dividendes versés',R(c.dividendsPaid),false],
-    ['Rachats d\'actions',R(c.repurchaseOfStock),false],
+    ["Rachats d'actions",R(c.repurchaseOfStock),false],
     ['Variation nette de trésorerie',R(c.changeInCash),true],
-  ].map(([l,v,bold])=>`<div class="${bold?'bold':''}"><span class="lbl">${l}</span><span class="val" style="color:${v!=null&&v>=0?'#4ade80':'#f87171'};font-weight:${bold?600:400}">${fmt(v)}</span></div>`).join('');
+  ].map(([l,v,bold])=>`<div class="${bold?'bold':''}"><span class="lbl">${l}</span><span class="val" style="color:${clr(v)};font-weight:${bold?700:400}">${fmt(v)}</span></div>`).join('');
 
-  // Analyst recommendation bar
-  const recColors={'strongBuy':'#16a34a','buy':'#4ade80','hold':'#facc15','sell':'#f97316','strongSell':'#ef4444'};
-  const recLabels={'strongBuy':'Fort achat','buy':'Achat','hold':'Neutre','sell':'Vente','strongSell':'Fort vente'};
+  // Analystes
+  const recColors={strongBuy:'#16a34a',buy:'#4ade80',hold:'#facc15',sell:'#f97316',strongSell:'#ef4444'};
+  const recLabels={strongBuy:'Fort achat',buy:'Achat',hold:'Neutre',sell:'Vente',strongSell:'Fort vente'};
   const recBar=totalRec?`
     <div class="rec-bar">${['strongBuy','buy','hold','sell','strongSell'].map(k=>`<div class="rec-seg" style="width:${((rt[k]||0)/totalRec*100).toFixed(1)}%;background:${recColors[k]}"></div>`).join('')}</div>
+    <div class="rec-labels"><span>Fort achat</span><span>Neutre</span><span>Fort vente</span></div>
     <div class="rec-counts">${['strongBuy','buy','hold','sell','strongSell'].filter(k=>rt[k]>0).map(k=>`<div class="rec-item"><div class="rec-dot" style="background:${recColors[k]}"></div><span class="rec-n">${rt[k]}</span>&nbsp;${recLabels[k]}</div>`).join('')}</div>
-  `:'<div style="color:rgba(255,255,255,.3);font-size:12px">Aucune donnée analyste</div>';
+  `:`<div style="color:var(--faint);font-size:12px">Aucune donnée analyste disponible</div>`;
 
-  // Analyst targets
   const targetBlock=(tgtMean||tgtHi||tgtLo)?`
     <div class="target-block">
-      ${tgtLo?`<div class="target-item"><div class="target-label">Objectif bas</div><div class="target-val">${fmtR(tgtLo,2)}</div><div class="target-upside" style="color:${tgtLo>curPrice?'#4ade80':'#f87171'}">${tgtLo&&curPrice?(((tgtLo-curPrice)/curPrice*100).toFixed(1)+'%'):'—'}</div></div>`:''}
-      ${tgtMean?`<div class="target-item" style="border-color:${th.accent}44"><div class="target-label">Objectif moyen</div><div class="target-val" style="color:${th.accent}">${fmtR(tgtMean,2)}</div><div class="target-upside" style="color:${upside!=null&&upside>=0?'#4ade80':'#f87171'}">${upside!=null?(upside>=0?'+':'')+upside.toFixed(1)+'%':'—'}</div></div>`:''}
-      ${tgtHi?`<div class="target-item"><div class="target-label">Objectif haut</div><div class="target-val">${fmtR(tgtHi,2)}</div><div class="target-upside" style="color:#4ade80">${tgtHi&&curPrice?(((tgtHi-curPrice)/curPrice*100).toFixed(1)+'%'):'—'}</div></div>`:''}
+      ${tgtLo?`<div class="target-item"><div class="target-label">Objectif bas</div><div class="target-val">${fmtR(tgtLo,2)}</div><div class="target-upside" style="color:${clr(tgtLo&&curPrice?tgtLo-curPrice:null)}">${tgtLo&&curPrice?((tgtLo-curPrice)/curPrice*100).toFixed(1)+'%':'—'}</div></div>`:''}
+      ${tgtMean?`<div class="target-item" style="border-color:${th.accent}55;border-top:3px solid ${th.accent}"><div class="target-label">Objectif moyen</div><div class="target-val" style="color:var(--co-accent)">${fmtR(tgtMean,2)}</div><div class="target-upside" style="color:${clr(upside)}">${upside!=null?(upside>=0?'+':'')+upside.toFixed(1)+'%':'—'}</div></div>`:''}
+      ${tgtHi?`<div class="target-item"><div class="target-label">Objectif haut</div><div class="target-val">${fmtR(tgtHi,2)}</div><div class="target-upside" style="color:#16a34a">${tgtHi&&curPrice?'+'+((tgtHi-curPrice)/curPrice*100).toFixed(1)+'%':'—'}</div></div>`:''}
     </div>`:'';
 
-  // Key facts
   const factsHtml=`<div class="facts-grid">
     <div class="fact"><div class="fact-label">Secteur</div><div class="fact-val">${prof.sector||'—'}</div></div>
     <div class="fact"><div class="fact-label">Industrie</div><div class="fact-val">${prof.industry||'—'}</div></div>
@@ -574,9 +705,10 @@ function renderDetail(){
     <div class="fact"><div class="fact-label">Employés</div><div class="fact-val">${prof.fullTimeEmployees?prof.fullTimeEmployees.toLocaleString('fr'):'—'}</div></div>
   </div>`;
 
-  // Insights
   const insights=generateInsights(data,qInc);
   const insightsHtml=insights.map(i=>`<div class="insight"><span class="insight-icon">${i.icon}</span><span>${i.text}</span></div>`).join('');
+
+  const tblHeader=`<table class="tbl"><thead><tr><th style="text-align:left">Période</th><th>Chiffre d'affaires</th><th>Marge brute</th><th>EBITDA</th><th>Résultat net</th><th>Marge nette</th></tr></thead>`;
 
   document.getElementById('detailContent').innerHTML=`
     <div class="co-top">
@@ -588,18 +720,20 @@ function renderDetail(){
         </div>
       </div>
       <div class="co-price-block">
-        <div class="co-price">${fmtR(curPrice,2)} <span style="font-size:14px;opacity:.4">${cur}</span></div>
+        <div class="co-price">${fmtR(curPrice,2)} <span style="font-size:14px;color:var(--faint)">${cur}</span></div>
         <div class="co-chg ${chgPct>=0?'pos':'neg'}">${chgPct>=0?'+':''}${chgPct.toFixed(2)}% aujourd'hui</div>
       </div>
     </div>
+
+    <div class="co-accent-bar"></div>
 
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Capitalisation</div><div class="kpi-val accent">${fmt(mktCap)}</div></div>
       <div class="kpi"><div class="kpi-label">PER (ttm)</div><div class="kpi-val">${pe?fmtR(pe,1)+'×':'—'}</div></div>
       <div class="kpi"><div class="kpi-label">PER fwd</div><div class="kpi-val">${fpe?fmtR(fpe,1)+'×':'—'}</div></div>
       <div class="kpi"><div class="kpi-label">Bêta</div><div class="kpi-val">${beta?fmtR(beta,2):'—'}</div></div>
-      <div class="kpi"><div class="kpi-label">Marge brute</div><div class="kpi-val">${gm!=null?fmtR(gm*100,1)+'%':'—'}</div></div>
-      <div class="kpi"><div class="kpi-label">ROE</div><div class="kpi-val">${roe!=null?fmtR(roe*100,1)+'%':'—'}</div></div>
+      <div class="kpi"><div class="kpi-label">Marge brute</div><div class="kpi-val accent">${gm!=null?fmtR(gm*100,1)+'%':'—'}</div></div>
+      <div class="kpi"><div class="kpi-label">ROE</div><div class="kpi-val accent">${roe!=null?fmtR(roe*100,1)+'%':'—'}</div></div>
     </div>
 
     ${rangePos!=null?`
@@ -610,14 +744,14 @@ function renderDetail(){
         <div class="range-cursor" style="left:${rangePos}%"></div>
       </div>
       <span>${fmtR(w52hi,2)}</span>
-      <span style="color:rgba(255,255,255,.25);font-size:10px">52 semaines</span>
+      <span style="color:var(--faint);font-size:10px">52 semaines</span>
     </div>`:''}
 
     ${prof.longBusinessSummary?`
     <div class="sec-title">À propos</div>
     <div class="card-d">
       ${factsHtml}
-      <div style="margin-top:14px">
+      <div style="margin-top:16px">
         <div class="co-desc" id="coDesc" onclick="this.classList.toggle('open');document.getElementById('descMore').textContent=this.classList.contains('open')?'Réduire ▲':'Lire plus ▼'">${prof.longBusinessSummary}</div>
         <span class="desc-more" id="descMore" onclick="document.getElementById('coDesc').classList.toggle('open');this.textContent=document.getElementById('coDesc').classList.contains('open')?'Réduire ▲':'Lire plus ▼'">Lire plus ▼</span>
       </div>
@@ -627,17 +761,17 @@ function renderDetail(){
 
     <div class="sec-title">États financiers</div>
     <div class="card-d">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-        <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,.7)">Résultats trimestriels</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:8px">
+        <span style="font-size:13px;font-weight:600;color:var(--text)">Résultats — dernières périodes</span>
         <div class="tabs">
-          <button class="tab-btn on" onclick="switchTab('income',this)">Résultats</button>
+          <button class="tab-btn on" onclick="switchTab('income',this)">Trimestriel</button>
+          <button class="tab-btn" onclick="switchTab('annual',this)">Annuel (3 ans)</button>
           <button class="tab-btn" onclick="switchTab('balance',this)">Bilan</button>
           <button class="tab-btn" onclick="switchTab('cashflow',this)">Cash Flow</button>
         </div>
       </div>
       <div id="tabContent" style="overflow-x:auto">
-        <table class="tbl"><thead><tr><th style="text-align:left">Période</th><th>Chiffre d'affaires</th><th>Marge brute</th><th>EBITDA</th><th>Résultat net</th><th>Marge nette</th></tr></thead>
-        <tbody>${incRows}</tbody></table>
+        ${tblHeader}<tbody>${incRows}</tbody></table>
       </div>
     </div>
 
@@ -649,33 +783,34 @@ function renderDetail(){
 
     <div class="sec-title">Consensus analystes</div>
     <div class="card-d">
-      ${totalRec?`<div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:8px">${totalRec} analystes couvrent cette valeur</div>`:''}
+      ${totalRec?`<div style="font-size:11px;color:var(--faint);margin-bottom:10px">${totalRec} analystes couvrent cette valeur</div>`:''}
       ${recBar}
       ${targetBlock}
     </div>
 
     <div class="sec-title">Analyse fondamentale</div>
     <div class="card-d">
-      ${insightsHtml||'<div style="color:rgba(255,255,255,.3);font-size:12px;text-align:center;padding:12px">Données insuffisantes pour l\'analyse</div>'}
+      ${insightsHtml||`<div style="color:var(--faint);font-size:13px;text-align:center;padding:16px">Données insuffisantes pour l'analyse</div>`}
     </div>
 
-    <div style="text-align:center;font-size:10px;color:rgba(255,255,255,.18);margin-top:24px">
-      Données Yahoo Finance · Clearbit · Ceci n'est pas un conseil en investissement
+    <div style="text-align:center;font-size:10px;color:var(--faint);margin-top:28px;padding-bottom:8px">
+      Données Yahoo Finance · Logos Clearbit · Ceci n'est pas un conseil en investissement
     </div>
   `;
 
   setTimeout(()=>{
-    renderRevenueChart(qInc,th);
-    renderPriceChart(hist,th);
+    renderRevenueChart(qInc, th);
+    renderPriceChart(hist, th);
   },60);
 }
 
-// ─── TAB SWITCHING ────────────────────────────────────────────────────────────
+// ─── ONGLETS ─────────────────────────────────────────────────────────────────
 function switchTab(tab,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   const{data}=state;
   const th=THEMES[state.ticker]||THEMES._;
+
   const qBal=data.balanceSheetHistoryQuarterly?.balanceSheetStatements||[];
   const qCF=data.cashflowStatementHistoryQuarterly?.cashflowStatements||[];
   const b=qBal[0]||{};
@@ -684,32 +819,44 @@ function switchTab(tab,btn){
   const capex=R(c.capitalExpenditures)||0;
   const fcf=opCF!=null?opCF+capex:null;
   const qInc=data.incomeStatementHistoryQuarterly?.incomeStatementHistory||[];
+  const annInc=data.incomeStatementHistory?.incomeStatementHistory||[];
+  const tblHeader=`<table class="tbl"><thead><tr><th style="text-align:left">Période</th><th>Chiffre d'affaires</th><th>Marge brute</th><th>EBITDA</th><th>Résultat net</th><th>Marge nette</th></tr></thead>`;
 
   const tabs={
-    income:`<table class="tbl"><thead><tr><th style="text-align:left">Période</th><th>Chiffre d'affaires</th><th>Marge brute</th><th>EBITDA</th><th>Résultat net</th><th>Marge nette</th></tr></thead>
-      <tbody>${qInc.slice(0,6).map(q=>{
-        const rev=R(q.totalRevenue),gp=R(q.grossProfit),ni=R(q.netIncome),ebitda=R(q.ebitda);
-        const gM=rev&&gp!=null?gp/rev:null,nM=rev&&ni!=null?ni/rev:null;
-        return`<tr><td>${fmtTs(R(q.endDate))}</td><td>${fmt(rev)}</td><td style="color:${th.accent}">${gM!=null?(gM*100).toFixed(1)+'%':'—'}</td><td>${fmt(ebitda)}</td><td style="color:${ni!=null&&ni>=0?'#4ade80':'#f87171'}">${fmt(ni)}</td><td style="color:${th.accent}">${nM!=null?(nM*100).toFixed(1)+'%':'—'}</td></tr>`;
-      }).join('')}</tbody></table>`,
+    income:tblHeader+`<tbody>${qInc.slice(0,6).map(q=>{
+      const rev=R(q.totalRevenue),gp=R(q.grossProfit),ni=R(q.netIncome),ebitda=R(q.ebitda);
+      const gM=rev&&gp!=null?gp/rev:null,nM=rev&&ni!=null?ni/rev:null;
+      return`<tr><td>${fmtTs(R(q.endDate))}</td><td>${fmt(rev)}</td><td style="color:var(--co-accent)">${gM!=null?(gM*100).toFixed(1)+'%':'—'}</td><td>${fmt(ebitda)}</td><td style="color:${clr(ni)}">${fmt(ni)}</td><td style="color:var(--co-accent)">${nM!=null?(nM*100).toFixed(1)+'%':'—'}</td></tr>`;
+    }).join('')}</tbody></table>`,
+
+    annual:tblHeader+`<tbody>${annInc.slice(0,4).map(q=>{
+      const rev=R(q.totalRevenue),gp=R(q.grossProfit),ni=R(q.netIncome),ebitda=R(q.ebitda);
+      const gM=rev&&gp!=null?gp/rev:null,nM=rev&&ni!=null?ni/rev:null;
+      return`<tr><td>${fmtTsY(R(q.endDate))}</td><td>${fmt(rev)}</td><td style="color:var(--co-accent)">${gM!=null?(gM*100).toFixed(1)+'%':'—'}</td><td>${fmt(ebitda)}</td><td style="color:${clr(ni)}">${fmt(ni)}</td><td style="color:var(--co-accent)">${nM!=null?(nM*100).toFixed(1)+'%':'—'}</td></tr>`;
+    }).join('')}</tbody></table>`,
+
     balance:`<div class="row-list">${[
       ['Cash & équivalents',R(b.cash),false],['Total actif courant',R(b.totalCurrentAssets),true],
       ['Total actifs',R(b.totalAssets),true],[null,null,false],
       ['Dettes fournisseurs',R(b.accountsPayable),false],['Total passif courant',R(b.totalCurrentLiabilities),true],
       ['Dettes long terme',R(b.longTermDebt),false],['Total dettes',R(b.totalLiab),true],
       ['Capitaux propres',R(b.totalStockholderEquity),true],
-    ].map(([l,v,bold])=>l?`<div class="${bold?'bold':''}"><span class="lbl">${l}</span><span class="val" style="color:${bold?'#fff':'rgba(255,255,255,.75)'}">${fmt(v)}</span></div>`:'<div style="height:4px"></div>').join('')}</div>`,
+    ].map(([l,v,bold])=>l?`<div class="${bold?'bold':''}"><span class="lbl">${l}</span><span class="val">${fmt(v)}</span></div>`:'<div style="height:4px"></div>').join('')}</div>`,
+
     cashflow:`<div class="row-list">${[
       ['Cash flow opérationnel',opCF,true],['dont Dépréciation / Amort.',R(c.depreciation),false],
       ['Investissements (Capex)',R(c.capitalExpenditures),false],['Free Cash Flow',fcf,true],
       ['Dividendes versés',R(c.dividendsPaid),false],["Rachats d'actions",R(c.repurchaseOfStock),false],
       ['Variation nette de trésorerie',R(c.changeInCash),true],
-    ].map(([l,v,bold])=>`<div class="${bold?'bold':''}"><span class="lbl">${l}</span><span class="val" style="color:${v!=null&&v>=0?'#4ade80':'#f87171'};font-weight:${bold?600:400}">${fmt(v)}</span></div>`).join('')}</div>`,
+    ].map(([l,v,bold])=>`<div class="${bold?'bold':''}"><span class="lbl">${l}</span><span class="val" style="color:${clr(v)};font-weight:${bold?700:400}">${fmt(v)}</span></div>`).join('')}</div>`,
   };
   document.getElementById('tabContent').innerHTML=tabs[tab]||'';
 }
 
-// ─── CHARTS ───────────────────────────────────────────────────────────────────
+// ─── GRAPHIQUES ───────────────────────────────────────────────────────────────
+const CHART_GRID  = 'rgba(0,0,0,.06)';
+const CHART_TICK  = '#9a9088';
+
 function renderRevenueChart(qInc,th){
   const el=document.getElementById('revenueChart');
   if(!el||!qInc.length)return;
@@ -719,13 +866,16 @@ function renderRevenueChart(qInc,th){
   const margin=items.map(q=>{const rev=R(q.totalRevenue),ni=R(q.netIncome);return rev&&ni!=null?+(ni/rev*100).toFixed(1):null;});
 
   charts.revenue=new Chart(el,{type:'bar',data:{labels,datasets:[
-    {label:'CA',data:revs,backgroundColor:th.accent+'55',borderColor:th.accent,borderWidth:1,borderRadius:4,yAxisID:'y'},
-    {label:'Marge nette %',data:margin,type:'line',borderColor:'#4ade80',backgroundColor:'transparent',tension:.35,pointRadius:3,pointBackgroundColor:'#4ade80',yAxisID:'y1'},
-  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'rgba(255,255,255,.45)',font:{size:10},boxWidth:10,padding:10}}},scales:{
-    x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(255,255,255,.35)',font:{size:10}}},
-    y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(255,255,255,.35)',font:{size:10},callback:v=>fmt(v)}},
-    y1:{position:'right',grid:{display:false},ticks:{color:'rgba(255,255,255,.35)',font:{size:10},callback:v=>v+'%'}},
-  }}});
+    {label:'CA',data:revs,backgroundColor:th.accent+'44',borderColor:th.accent,borderWidth:2,borderRadius:5,yAxisID:'y'},
+    {label:'Marge nette %',data:margin,type:'line',borderColor:'#16a34a',backgroundColor:'transparent',tension:.35,pointRadius:3,pointBackgroundColor:'#16a34a',borderWidth:2,yAxisID:'y1'},
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{labels:{color:CHART_TICK,font:{size:11},boxWidth:12,padding:12}}},
+    scales:{
+      x:{grid:{color:CHART_GRID},ticks:{color:CHART_TICK,font:{size:10}}},
+      y:{grid:{color:CHART_GRID},ticks:{color:CHART_TICK,font:{size:10},callback:v=>fmt(v)}},
+      y1:{position:'right',grid:{display:false},ticks:{color:'#16a34a',font:{size:10},callback:v=>v+'%'}},
+    }
+  }});
 }
 
 function renderPriceChart(hist,th){
@@ -737,23 +887,25 @@ function renderPriceChart(hist,th){
   charts.price=new Chart(el,{type:'line',data:{labels,datasets:[{
     label:`Cours (${hist.currency||''})`,data:prices,
     borderColor:th.accent,backgroundColor:th.accent+'18',
-    fill:true,tension:.3,pointRadius:0,pointHoverRadius:4,pointHoverBackgroundColor:th.accent,
-    borderWidth:2,
-  }]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${fmtR(ctx.parsed.y,2)} ${hist.currency||''}`}}},scales:{
-    x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(255,255,255,.35)',font:{size:10},maxTicksLimit:12}},
-    y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(255,255,255,.35)',font:{size:10},callback:v=>fmtR(v,0)}},
-  }}});
+    fill:true,tension:.3,pointRadius:0,pointHoverRadius:5,
+    pointHoverBackgroundColor:th.accent,borderWidth:2.5,
+  }]},options:{responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${fmtR(ctx.parsed.y,2)} ${hist.currency||''}`}}},
+    scales:{
+      x:{grid:{color:CHART_GRID},ticks:{color:CHART_TICK,font:{size:10},maxTicksLimit:12}},
+      y:{grid:{color:CHART_GRID},ticks:{color:CHART_TICK,font:{size:10},callback:v=>fmtR(v,0)}},
+    }
+  }});
 }
 
-// ─── RULE-BASED INSIGHTS ─────────────────────────────────────────────────────
+// ─── INSIGHTS ─────────────────────────────────────────────────────────────────
 function generateInsights(data,qInc){
   const fd=data.financialData||{};
   const ks=data.defaultKeyStatistics||{};
-  const sd=data.summaryDetail||{};
   const rt=data.recommendationTrend?.trend?.[0]||{};
   const out=[];
 
-  // Revenue trend QoQ
   if(qInc.length>=2){
     const r0=R(qInc[0].totalRevenue),r1=R(qInc[1].totalRevenue);
     if(r0&&r1){
@@ -763,65 +915,47 @@ function generateInsights(data,qInc){
       else out.push({icon:'↘️',text:`CA en baisse de ${Math.abs(g).toFixed(1)}% par rapport au trimestre précédent`});
     }
   }
-
-  // Annual revenue growth
   const revG=R(fd.revenueGrowth);
   if(revG!=null){
     const g=revG*100;
     if(g>15)out.push({icon:'🚀',text:`Croissance annuelle du CA exceptionnelle : +${g.toFixed(1)}%`});
     else if(g<-5)out.push({icon:'⚠️',text:`Contraction du CA annuel : ${g.toFixed(1)}%`});
   }
-
-  // Gross margin
   const gm=R(fd.grossMargins);
   if(gm!=null){
     if(gm>0.6)out.push({icon:'💪',text:`Marge brute exceptionnelle (${(gm*100).toFixed(1)}%) — fort pouvoir de fixation des prix`});
     else if(gm>0.3)out.push({icon:'✅',text:`Bonne marge brute de ${(gm*100).toFixed(1)}%`});
     else if(gm<0.1)out.push({icon:'⚠️',text:`Marge brute étroite (${(gm*100).toFixed(1)}%) — modèle à forte intensité de coûts`});
   }
-
-  // Net margin
   const nm=R(fd.profitMargins);
   if(nm!=null){
     if(nm>0.2)out.push({icon:'🌟',text:`Rentabilité remarquable : marge nette de ${(nm*100).toFixed(1)}%`});
     else if(nm>0.08)out.push({icon:'✅',text:`Marge nette correcte : ${(nm*100).toFixed(1)}%`});
     else if(nm<0)out.push({icon:'🔴',text:`Entreprise déficitaire : marge nette de ${(nm*100).toFixed(1)}%`});
   }
-
-  // FCF
   const fcf=R(fd.freeCashflow),rev=R(fd.totalRevenue);
   if(fcf!=null&&rev){
     const m=fcf/rev;
     if(m>0.15)out.push({icon:'💰',text:`Excellent générateur de cash : FCF = ${fmt(fcf)} (${(m*100).toFixed(1)}% du CA)`});
     else if(m<0)out.push({icon:'⚠️',text:`Free cash flow négatif (${fmt(fcf)}) — surveiller la trésorerie`});
   }
-
-  // ROE
   const roe=R(fd.returnOnEquity);
   if(roe!=null){
     if(roe>0.3)out.push({icon:'🏆',text:`Retour sur capitaux propres excellent : ROE ${(roe*100).toFixed(1)}%`});
     else if(roe<0)out.push({icon:'⚠️',text:`ROE négatif — capitaux propres négatifs ou pertes nettes`});
   }
-
-  // Debt
   const dte=R(fd.debtToEquity);
   if(dte!=null){
     if(dte>150)out.push({icon:'⚠️',text:`Levier financier élevé (D/E : ${dte.toFixed(0)}%) — sensible aux remontées de taux`});
     else if(dte<20)out.push({icon:'🛡️',text:`Bilan solide, faiblement endetté (D/E : ${dte.toFixed(0)}%)`});
   }
-
-  // Liquidity
   const cr=R(fd.currentRatio);
   if(cr!=null&&cr<1)out.push({icon:'⚠️',text:`Ratio de liquidité inférieur à 1 (${cr.toFixed(2)}) — tensions possibles à court terme`});
-
-  // Valuation
   const pe=R(ks.trailingPE);
   if(pe!=null&&pe>0){
     if(pe>40)out.push({icon:'💎',text:`Valorisation premium (PER ${pe.toFixed(1)}×) — le marché parie sur une croissance soutenue`});
     else if(pe<12)out.push({icon:'🎯',text:`PER attractif (${pe.toFixed(1)}×) — potentiellement sous-valorisé`});
   }
-
-  // Analysts consensus
   const total=(rt.strongBuy||0)+(rt.buy||0)+(rt.hold||0)+(rt.sell||0)+(rt.strongSell||0);
   if(total>0){
     const bull=((rt.strongBuy||0)+(rt.buy||0))/total*100;
@@ -829,7 +963,6 @@ function generateInsights(data,qInc){
     else if(bull<30)out.push({icon:'👎',text:`Analystes prudents : seulement ${Math.round(bull)}% recommandent l'achat (${total} avis)`});
     else out.push({icon:'🤝',text:`Consensus neutre : ${Math.round(bull)}% d'achats sur ${total} analystes`});
   }
-
   return out.slice(0,9);
 }
 
