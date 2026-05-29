@@ -17,7 +17,10 @@
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
 /* ── HEADER ── */
-header{position:sticky;top:0;background:#ffffffee;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:66px;padding:0 32px;display:flex;align-items:center;gap:16px;z-index:200}
+header{position:sticky;top:0;background:#ffffffee;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:66px;padding:0 32px;display:flex;align-items:center;gap:16px;z-index:200;-webkit-app-region:drag}
+header *{-webkit-app-region:no-drag}
+/* Espace pour les boutons traffic light macOS (titleBarStyle: hiddenInset) */
+body.is-electron header{padding-left:78px}
 .brand{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--blue);letter-spacing:.3px;white-space:nowrap;font-weight:500}
 .mkt-pills{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
 .mkt-pills::-webkit-scrollbar{display:none}
@@ -1024,6 +1027,10 @@ function generateInsights(data,qInc){
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
+// Détecte Electron pour ajuster le layout (espace traffic lights)
+if (/Electron/.test(navigator.userAgent)) {
+  document.body.classList.add('is-electron');
+}
 loadHome();
 </script>
 </body>
